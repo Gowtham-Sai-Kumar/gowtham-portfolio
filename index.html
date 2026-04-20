@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gowtham Sai Kumar — SQL Developer & MERN Learner based in Hyderabad. 3 years of healthcare data systems, SSRS, Power BI, and growing into React & Node.js." />
+  <title>Gowtham Sai Kumar — SQL Developer · MERN Learner</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;0,900;1,300;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Chart.js (must load before main.js uses it) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+  <!-- CSS (variables first, then base, then components, then sections) -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/sections.css" />
+</head>
+<body>
+
+  <!-- ── CURSOR ─────────────────────────────────────────── -->
+  <div class="cur" id="cur"></div>
+  <div class="cur-ring" id="curRing"></div>
+
+  <!-- ── LOADER ─────────────────────────────────────────── -->
+  <div id="loader">
+    <div class="loader-logo">INITIALIZING PORTFOLIO.EXE</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <div class="loader-msg" id="loaderMsg">Connecting to SQL Server...</div>
+  </div>
+
+  <!-- ── NAV ────────────────────────────────────────────── -->
+  <nav id="nav">
+    <div class="nav-brand">GSK<span>.dev</span></div>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-theme" id="themeBtn" title="Toggle theme">☀</button>
+      <button class="btn-hire" onclick="scrollTo('#contact')">Hire Me</button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-grid"></div>
+    <div class="hero-glow1"></div>
+    <div class="hero-glow2"></div>
+
+    <div class="hero-left">
+      <div class="hero-tag"><span class="tag-dot"></span>Open to SQL &amp; MERN roles · Hyderabad</div>
+      <h1 class="hero-name">Gowtham<br><em>Sai Kumar</em></h1>
+      <div class="hero-sub">SQL Developer · MERN Stack Learner</div>
+      <div class="typing-line">
+        I build&nbsp;<span class="typing-cursor" id="typeCursor"></span>
+      </div>
+      <div class="hero-cta">
+        <button class="cta-primary" onclick="scrollTo('#projects')">View Projects ↓</button>
+        <button class="cta-secondary" onclick="scrollTo('#contact')">Get In Touch</button>
+        <a href="https://github.com/Gowtham-Sai-Kumar" target="_blank" class="cta-secondary">GitHub ↗</a>
+      </div>
+    </div>
+
+    <!-- Terminal Card -->
+    <div class="hero-right">
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="term-dots">
+            <div class="term-dot" style="background:#ff5f57"></div>
+            <div class="term-dot" style="background:#ffbd2e"></div>
+            <div class="term-dot" style="background:#28ca42"></div>
+          </div>
+          <div class="term-title">query_optimizer.sql — SQL Server 2022</div>
+        </div>
+        <div class="term-body">
+          <div class="t-line"><span class="t-cm">-- Patient Analytics Optimization</span></div>
+          <div class="t-line"><span class="t-kw">WITH</span> <span class="t-cmd">MonthlyTrend <span class="t-kw">AS</span> (</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;<span class="t-kw">SELECT</span></span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-fn">DATENAME</span>(<span class="t-kw">MONTH</span>, VisitDate)</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-kw">AS</span> <span class="t-str">MonthName</span>,</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-fn">COUNT</span>(*) <span class="t-kw">AS</span> <span class="t-str">Visits</span>,</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-fn">COUNT</span>(<span class="t-kw">DISTINCT</span> PatientID)</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-kw">AS</span> <span class="t-str">UniquePatients</span></span></div>
+          <div class="t-line"><span class="t-kw">&nbsp;&nbsp;FROM</span> <span class="t-cmd">Appointments</span></div>
+          <div class="t-line"><span class="t-kw">&nbsp;&nbsp;WHERE</span> <span class="t-cmd">VisitDate >=</span></div>
+          <div class="t-line"><span class="t-cmd">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-fn">DATEADD</span>(MONTH,<span class="t-num">-12</span>,<span class="t-fn">GETDATE</span>())</span></div>
+          <div class="t-line"><span class="t-kw">&nbsp;&nbsp;GROUP BY</span> <span class="t-fn">DATENAME</span><span class="t-cmd">(MONTH,VisitDate)</span></div>
+          <div class="t-line"><span class="t-cmd">)</span></div>
+          <div class="t-line"><span class="t-kw">SELECT</span> <span class="t-cmd">* <span class="t-kw">FROM</span> MonthlyTrend</span></div>
+          <div class="t-line"><span class="t-kw">ORDER BY</span> <span class="t-cmd">Visits <span class="t-kw">DESC</span>;</span></div>
+          <div class="t-line" style="margin-top:8px"><span class="t-prompt">→</span><span class="t-ok">&nbsp;12 rows returned · 1.93s → 0.78s (↓60%)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num" data-count="3">0</div><div class="hstat-label">Years Experience</div></div>
+      <div class="hstat"><div class="hstat-num" data-count="50">0</div><div class="hstat-label">SSRS Reports Built</div></div>
+      <div class="hstat"><div class="hstat-num" data-count="60">0</div><div class="hstat-label">% Query Speedup</div></div>
+      <div class="hstat"><div class="hstat-num" data-count="20">0</div><div class="hstat-label">Hours Saved / Month</div></div>
+      <div class="hstat"><div class="hstat-num" data-count="5">0</div><div class="hstat-label">Portfolio Projects</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       ABOUT
+  ══════════════════════════════════════════════════════ -->
+  <section class="about-section" id="about">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <div class="s-eyebrow">Who I am</div>
+        <h2 class="s-title" style="font-size:clamp(32px,4vw,46px);margin-bottom:28px">Data + Application<br><em>Developer</em></h2>
+        <p>I'm a <strong>SQL Developer with 3 years</strong> of hands-on experience building and optimizing healthcare data systems at Dr. Batra's Positive Health Clinic. My core strength lies in turning complex business data into fast, reliable, decision-ready reports and dashboards.</p>
+        <p>Beyond databases, I'm actively expanding into <strong>MERN stack development</strong> — building React frontends, Node.js APIs, and connecting them to real SQL backends. I position myself as a <strong>"Data + Application Developer"</strong> — someone who understands both the data layer and the interface built on top of it.</p>
+        <div class="about-chips">
+          <span class="chip core">SQL Server</span>
+          <span class="chip core">T-SQL</span>
+          <span class="chip core">SSRS</span>
+          <span class="chip core">Power BI</span>
+          <span class="chip">React</span>
+          <span class="chip">Node.js</span>
+          <span class="chip">MongoDB</span>
+          <span class="chip">Healthcare IT</span>
+          <span class="chip">ETL</span>
+          <span class="chip">Query Optimization</span>
+        </div>
+      </div>
+      <div class="about-visual reveal d2">
+        <div class="av-header">
+          <div class="av-title">report_dashboard.ssrs</div>
+          <div class="av-status">Live Preview</div>
+        </div>
+        <div class="av-body">
+          <div class="av-kpis">
+            <div class="av-kpi"><div class="av-kpi-val">1,200</div><div class="av-kpi-label">Total Patients</div></div>
+            <div class="av-kpi"><div class="av-kpi-val" style="color:var(--blue)">68.2%</div><div class="av-kpi-label">Conversion Rate</div></div>
+            <div class="av-kpi"><div class="av-kpi-val" style="color:var(--gold)">50+</div><div class="av-kpi-label">Reports Built</div></div>
+            <div class="av-kpi"><div class="av-kpi-val" style="color:var(--rose)">99.9%</div><div class="av-kpi-label">DB Uptime</div></div>
+          </div>
+          <div class="av-chart"><canvas id="aboutChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SKILLS
+  ══════════════════════════════════════════════════════ -->
+  <section class="skills-section" id="skills">
+    <div class="skills-layout">
+      <div class="skills-left reveal">
+        <div class="s-eyebrow">Expertise</div>
+        <h2 class="s-title" style="font-size:clamp(32px,4vw,46px);margin-bottom:24px">Technical<br><em>Skills</em></h2>
+        <p>SQL is my core — 3 years of production experience with Microsoft SQL Server. Frontend and MERN are my expanding layer.</p>
+        <div class="skill-bars">
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">T-SQL / SQL Server</span><span class="sb-pct">95%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="95"></div></div>
+          </div>
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">SSRS / Report Design</span><span class="sb-pct">90%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="90"></div></div>
+          </div>
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">Query Optimization</span><span class="sb-pct">88%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="88"></div></div>
+          </div>
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">ETL / Data Migration</span><span class="sb-pct">85%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="85"></div></div>
+          </div>
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">React.js</span><span class="sb-pct">62%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="62" style="background:linear-gradient(90deg,var(--blue),var(--teal))"></div></div>
+          </div>
+          <div class="sb-item">
+            <div class="sb-head"><span class="sb-name">JavaScript / Node.js</span><span class="sb-pct">58%</span></div>
+            <div class="sb-track"><div class="sb-fill" data-w="58" style="background:linear-gradient(90deg,var(--gold),var(--blue))"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skills-right">
+        <div class="skill-group reveal">
+          <div class="sg-label">🗄 Database &amp; SQL (Core Strength)</div>
+          <div class="skill-cards">
+            <div class="skill-card primary"><span class="sk-icon">🗄</span><div><div class="sk-name">SQL Server</div><div class="sk-level">Expert · 3yrs</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">⚡</span><div><div class="sk-name">T-SQL</div><div class="sk-level">Expert</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">📊</span><div><div class="sk-name">SSRS</div><div class="sk-level">Advanced</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">🔍</span><div><div class="sk-name">Query Optim.</div><div class="sk-level">Advanced</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">📈</span><div><div class="sk-name">Power BI</div><div class="sk-level">Intermediate</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">🔄</span><div><div class="sk-name">ETL / SSIS</div><div class="sk-level">Intermediate</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">⚙</span><div><div class="sk-name">Stored Procs</div><div class="sk-level">Advanced</div></div></div>
+            <div class="skill-card primary"><span class="sk-icon">🗂</span><div><div class="sk-name">Indexing</div><div class="sk-level">Advanced</div></div></div>
+          </div>
+        </div>
+        <div class="skill-group reveal d1">
+          <div class="sg-label">⚛ Frontend (Growing)</div>
+          <div class="skill-cards">
+            <div class="skill-card"><span class="sk-icon">⚛</span><div><div class="sk-name">React.js</div><div class="sk-level">Learning</div></div></div>
+            <div class="skill-card"><span class="sk-icon">🌐</span><div><div class="sk-name">HTML5 / CSS3</div><div class="sk-level">Intermediate</div></div></div>
+            <div class="skill-card"><span class="sk-icon">🟨</span><div><div class="sk-name">JavaScript</div><div class="sk-level">Intermediate</div></div></div>
+            <div class="skill-card"><span class="sk-icon">📱</span><div><div class="sk-name">Responsive UI</div><div class="sk-level">Intermediate</div></div></div>
+          </div>
+        </div>
+        <div class="skill-group reveal d2">
+          <div class="sg-label">🟢 Backend &amp; Tools (Learning)</div>
+          <div class="skill-cards">
+            <div class="skill-card"><span class="sk-icon">🟢</span><div><div class="sk-name">Node.js</div><div class="sk-level">Learning</div></div></div>
+            <div class="skill-card"><span class="sk-icon">🍃</span><div><div class="sk-name">MongoDB</div><div class="sk-level">Learning</div></div></div>
+            <div class="skill-card"><span class="sk-icon">🐍</span><div><div class="sk-name">Python</div><div class="sk-level">Basic</div></div></div>
+            <div class="skill-card"><span class="sk-icon">☁</span><div><div class="sk-name">AWS Basics</div><div class="sk-level">Basic</div></div></div>
+            <div class="skill-card"><span class="sk-icon">📦</span><div><div class="sk-name">Git / GitHub</div><div class="sk-level">Intermediate</div></div></div>
+            <div class="skill-card"><span class="sk-icon">🚀</span><div><div class="sk-name">REST APIs</div><div class="sk-level">Learning</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       PROJECTS
+  ══════════════════════════════════════════════════════ -->
+  <section class="projects-section" id="projects">
+    <div class="s-eyebrow reveal">Portfolio</div>
+    <h2 class="s-title reveal">Featured <em>Projects</em></h2>
+    <div class="projects-grid">
+
+      <!-- Project 1 — PatientIQ (hero, spans 2 cols) -->
+      <div class="project-card reveal" id="pc1">
+        <div class="pc-visual">
+          <div class="pc-tag">SQL + React + Node.js</div>
+          <div class="pc-visual-inner">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+              <div style="background:var(--panel);border:1px solid var(--edge);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--teal)">1.2K</div><div style="font-size:9px;color:var(--fog2)">Patients</div></div>
+              <div style="background:var(--panel);border:1px solid var(--edge);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)">68%</div><div style="font-size:9px;color:var(--fog2)">Conversion</div></div>
+              <div style="background:var(--panel);border:1px solid var(--edge);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--gold)">50+</div><div style="font-size:9px;color:var(--fog2)">Reports</div></div>
+              <div style="background:var(--panel);border:1px solid var(--edge);border-radius:6px;padding:8px;text-align:center"><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--rose)">↓60%</div><div style="font-size:9px;color:var(--fog2)">Query Time</div></div>
+            </div>
+            <div class="card-chart"><canvas id="projChart1"></canvas></div>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-num">01 / FEATURED</div>
+          <div class="pc-title">PatientIQ — Healthcare Analytics System</div>
+          <p class="pc-desc">Full-stack patient analytics dashboard simulating a real-world healthcare data environment. Built with React frontend, Node.js/Express REST API, and SQL Server as primary database. Features patient management (1200+ records), appointment tracking, SSRS-style report generation, and optimized SQL queries with stored procedures.</p>
+          <div class="pc-footer">
+            <div class="pc-techs">
+              <span class="pc-tech">React</span><span class="pc-tech">Node.js</span><span class="pc-tech">SQL Server</span><span class="pc-tech">Express</span><span class="pc-tech">Chart.js</span><span class="pc-tech">SSRS</span>
+            </div>
+            <div class="pc-links">
+              <a class="pc-link" href="#dashboard" title="Live Demo">▶</a>
+              <a class="pc-link" href="https://github.com/Gowtham-Sai-Kumar" target="_blank" title="GitHub">⌥</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 2 — Responsive Portfolio (HTML/CSS/JS) -->
+      <div class="project-card reveal d1" id="pc2">
+        <div class="pc-visual" style="background:var(--ink3)">
+          <div class="pc-tag">HTML · CSS · JS</div>
+          <div class="pc-visual-inner">
+            <div class="react-preview">
+              <div class="rp-topbar">
+                <div class="rp-dot" style="background:#ff5f57"></div>
+                <div class="rp-dot" style="background:#ffbd2e"></div>
+                <div class="rp-dot" style="background:#28ca42"></div>
+              </div>
+              <div class="rp-body">
+                <div class="rp-row"><div class="rp-pill" style="width:60%;background:var(--teal-bg);border:1px solid rgba(0,200,160,.2)"></div></div>
+                <div class="rp-row"><div class="rp-pill" style="width:90%"></div></div>
+                <div class="rp-row"><div class="rp-pill" style="width:75%"></div></div>
+                <div class="rp-row" style="margin-top:6px">
+                  <div class="rp-pill" style="width:36%;background:var(--teal);height:28px;border-radius:6px"></div>
+                  <div class="rp-pill" style="width:28%;height:28px;border-radius:6px;border:1px solid var(--edge2)"></div>
+                </div>
+                <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+                  <div style="height:50px;background:var(--panel2);border-radius:5px;border:1px solid var(--edge)"></div>
+                  <div style="height:50px;background:var(--panel2);border-radius:5px;border:1px solid var(--edge)"></div>
+                  <div style="height:50px;background:var(--panel2);border-radius:5px;border:1px solid var(--edge)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-num">02 / FRONTEND · LinkedIn Project</div>
+          <div class="pc-title">Responsive Portfolio Website</div>
+          <p class="pc-desc">A clean, fully responsive personal portfolio built with HTML5, CSS3, and vanilla JavaScript. Features smooth scroll animations, mobile-first layout, and modern card-based project showcase. Published on LinkedIn.</p>
+          <div class="pc-footer">
+            <div class="pc-techs">
+              <span class="pc-tech">HTML5</span><span class="pc-tech">CSS3</span><span class="pc-tech">JavaScript</span><span class="pc-tech">Responsive</span>
+            </div>
+            <div class="pc-links">
+              <a class="pc-link" href="https://linkedin.com/in/gowtham-sai-kumar" target="_blank" title="LinkedIn">in</a>
+              <a class="pc-link" href="https://github.com/Gowtham-Sai-Kumar" target="_blank" title="GitHub">⌥</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 3 — React Dashboard App -->
+      <div class="project-card reveal" id="pc3">
+        <div class="pc-visual" style="background:var(--ink3)">
+          <div class="pc-tag">React · Components</div>
+          <div class="pc-visual-inner" style="font-family:var(--mono);font-size:10px;padding:4px 0;line-height:2">
+            <span style="color:#7b6fff">import</span> <span style="color:var(--cream)">React, {useState} </span><span style="color:#7b6fff">from</span> <span style="color:var(--teal)">'react'</span><br/>
+            <span style="color:#7b6fff">import</span> <span style="color:var(--cream)">{Dashboard, Cards} </span><span style="color:#7b6fff">from</span> <span style="color:var(--teal)">'./components'</span><br/><br/>
+            <span style="color:#7b6fff">const</span> <span style="color:var(--rose)">App</span> <span style="color:var(--fog)">=</span> <span style="color:var(--cream)">()</span> <span style="color:#7b6fff">=&gt;</span> <span style="color:var(--cream)">{</span><br/>
+            <span style="color:var(--cream)">&nbsp;&nbsp;</span><span style="color:#7b6fff">const</span> <span style="color:var(--cream)">[data, setData]</span> <span style="color:var(--fog)">=</span> <span style="color:var(--rose)">useState</span><span style="color:var(--cream)">([])</span><br/>
+            <span style="color:var(--cream)">&nbsp;&nbsp;</span><span style="color:#7b6fff">return</span> <span style="color:var(--cream)">&lt;</span><span style="color:var(--rose)">Dashboard</span> <span style="color:var(--blue)">data</span><span style="color:var(--cream)">=</span><span style="color:var(--teal)">{data}</span> <span style="color:var(--cream)">/&gt;</span><br/>
+            <span style="color:var(--cream)">}</span>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-num">03 / REACT · LinkedIn Project</div>
+          <div class="pc-title">React Dashboard App</div>
+          <p class="pc-desc">An interactive dashboard built with React.js featuring reusable components, useState/useEffect hooks, dynamic data rendering, and Chart.js integration. Published on LinkedIn.</p>
+          <div class="pc-footer">
+            <div class="pc-techs">
+              <span class="pc-tech">React</span><span class="pc-tech">Hooks</span><span class="pc-tech">Chart.js</span><span class="pc-tech">CSS Modules</span>
+            </div>
+            <div class="pc-links">
+              <a class="pc-link" href="https://linkedin.com/in/gowtham-sai-kumar" target="_blank" title="LinkedIn">in</a>
+              <a class="pc-link" href="https://github.com/Gowtham-Sai-Kumar" target="_blank" title="GitHub">⌥</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project 4 — SSRS Reporting -->
+      <div class="project-card reveal d1" id="pc4">
+        <div class="pc-visual" style="background:var(--ink3)">
+          <div class="pc-tag">SSRS · SQL Server</div>
+          <div class="pc-visual-inner" style="font-family:var(--mono);font-size:9px">
+            <div style="background:var(--ink);border-radius:6px;border:1px solid var(--edge);overflow:hidden">
+              <div style="background:var(--panel2);padding:6px 10px;display:flex;justify-content:space-between">
+                <span style="color:var(--fog2)">Clinic Report · Apr 2025</span>
+                <span style="color:var(--teal)">SSRS</span>
+              </div>
+              <table style="width:100%;border-collapse:collapse">
+                <tr style="border-bottom:1px solid var(--edge)"><td style="padding:5px 10px;color:var(--fog2)">Clinic</td><td style="padding:5px 10px;color:var(--fog2)">Patients</td><td style="padding:5px 10px;color:var(--fog2)">Conv.</td></tr>
+                <tr style="border-bottom:1px solid var(--edge)"><td style="padding:5px 10px;color:var(--cream)">Hyd Central</td><td style="padding:5px 10px;color:var(--teal)">2,840</td><td style="padding:5px 10px;color:var(--teal)">72%</td></tr>
+                <tr style="border-bottom:1px solid var(--edge)"><td style="padding:5px 10px;color:var(--cream)">Secunderabad</td><td style="padding:5px 10px;color:var(--blue)">1,920</td><td style="padding:5px 10px;color:var(--blue)">65%</td></tr>
+                <tr><td style="padding:5px 10px;color:var(--cream)">Banjara Hills</td><td style="padding:5px 10px;color:var(--gold)">1,650</td><td style="padding:5px 10px;color:var(--gold)">58%</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-num">04 / SQL · SSRS · Work Project</div>
+          <div class="pc-title">Automated SSRS Reporting System</div>
+          <p class="pc-desc">Built 50+ SSRS reports across 10+ departments at Dr. Batra's — parameterized, drill-through, and interactive. SQL Server Agent automation saving 20+ hours/month.</p>
+          <div class="pc-footer">
+            <div class="pc-techs">
+              <span class="pc-tech">SSRS</span><span class="pc-tech">T-SQL</span><span class="pc-tech">SQL Server Agent</span><span class="pc-tech">SSMS</span>
+            </div>
+            <div class="pc-links">
+              <a class="pc-link" href="#dashboard" title="Demo">▶</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SQL DASHBOARD (Live Demo)
+  ══════════════════════════════════════════════════════ -->
+  <section class="dashboard-section" id="dashboard">
+    <div class="s-eyebrow reveal">Live Demo</div>
+    <h2 class="s-title reveal">SQL <em>Dashboard</em></h2>
+    <div class="dash-intro reveal">
+      <p>An interactive simulation of the kind of analytics dashboard I build at work — patient data, VC tracking, clinic reports. Powered by dummy JSON data, mimicking a real SQL Server + REST API backend.</p>
+    </div>
+
+    <div class="dash-wrap reveal">
+      <div class="dash-topbar">
+        <div class="dash-titlebar">
+          <div class="wdots">
+            <div class="wd" style="background:#ff5f57"></div>
+            <div class="wd" style="background:#ffbd2e"></div>
+            <div class="wd" style="background:#28ca42"></div>
+          </div>
+          <div class="dash-appname">PatientIQ Analytics — SQL Server 2022</div>
+        </div>
+        <div class="dash-live">Connected · Live</div>
+      </div>
+
+      <div class="dash-body">
+        <!-- Sidebar -->
+        <div class="dash-sidebar">
+          <div class="ds-section">Analytics</div>
+          <div class="ds-item active"><span class="ds-icon">📊</span>Overview</div>
+          <div class="ds-item"><span class="ds-icon">👥</span>Patients</div>
+          <div class="ds-item"><span class="ds-icon">📅</span>Appointments</div>
+          <div class="ds-section">Reports</div>
+          <div class="ds-item"><span class="ds-icon">📄</span>SSRS Reports</div>
+          <div class="ds-item"><span class="ds-icon">⚡</span>Scheduled Jobs</div>
+          <div class="ds-section">System</div>
+          <div class="ds-item"><span class="ds-icon">🗄</span>Query Editor</div>
+          <div class="ds-item"><span class="ds-icon">🔒</span>Permissions</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dash-main">
+          <!-- KPIs -->
+          <div class="dash-kpis">
+            <div class="dk"><div class="dk-label">Total Patients</div><div class="dk-val green">1,200</div><div class="dk-change"><span class="dk-up">↑ 8.4%</span> vs last month</div></div>
+            <div class="dk"><div class="dk-label">Conversion Rate</div><div class="dk-val blue">68.2%</div><div class="dk-change"><span class="dk-up">↑ 3.1%</span> improvement</div></div>
+            <div class="dk"><div class="dk-label">Avg Query Time</div><div class="dk-val gold">0.78s</div><div class="dk-change"><span class="dk-up">↓ 60%</span> optimized</div></div>
+            <div class="dk"><div class="dk-label">DB Uptime</div><div class="dk-val rose">99.9%</div><div class="dk-change">All systems normal</div></div>
+          </div>
+
+          <!-- Charts -->
+          <div class="dash-charts">
+            <div class="dw">
+              <div class="dw-head"><div class="dw-title">Monthly Patient Visits</div><span class="dw-badge g">Live · 12 months</span></div>
+              <div class="dw-chart"><canvas id="dashBarChart"></canvas></div>
+            </div>
+            <div class="dw">
+              <div class="dw-head"><div class="dw-title">Treatment Distribution</div><span class="dw-badge b">By Type</span></div>
+              <div class="dw-chart">
+                <div class="donut-wrap" style="height:120px;align-items:center">
+                  <canvas id="dashDonut" width="100" height="100" style="width:100px;height:100px;flex-shrink:0"></canvas>
+                  <div class="donut-legend">
+                    <div class="dl"><div class="dl-dot" style="background:var(--teal)"></div><span class="dl-label">Homeopathy</span><span class="dl-val">38%</span></div>
+                    <div class="dl"><div class="dl-dot" style="background:var(--blue)"></div><span class="dl-label">Hair Care</span><span class="dl-val">25%</span></div>
+                    <div class="dl"><div class="dl-dot" style="background:var(--gold)"></div><span class="dl-label">Skin Care</span><span class="dl-val">18%</span></div>
+                    <div class="dl"><div class="dl-dot" style="background:var(--rose)"></div><span class="dl-label">Dental</span><span class="dl-val">12%</span></div>
+                    <div class="dl"><div class="dl-dot" style="background:var(--fog2)"></div><span class="dl-label">Nutrition</span><span class="dl-val">7%</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Patient Table -->
+          <div class="dash-controls">
+            <input class="dash-search" placeholder="🔍  Search patients..." id="dashSearch" />
+            <select class="dash-select" id="dashFilter">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Completed</option>
+              <option>Missed</option>
+              <option>Pending</option>
+            </select>
+          </div>
+          <div class="dash-table-wrap">
+            <table class="dt">
+              <thead>
+                <tr>
+                  <th>Patient ID</th><th>Name</th><th>Clinic</th>
+                  <th>Treatment</th><th>Last Visit</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dashTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       EXPERIENCE
+  ══════════════════════════════════════════════════════ -->
+  <section class="exp-section" id="experience">
+    <div class="exp-layout">
+      <div class="exp-left reveal">
+        <div class="s-eyebrow">Career</div>
+        <h2 class="s-title" style="font-size:clamp(30px,3.5vw,42px);margin-bottom:20px">Work<br><em>Experience</em></h2>
+        <p>3 years building production healthcare data systems. Responsible for database architecture, report delivery, and now expanding into full-stack MERN development.</p>
+      </div>
+      <div class="timeline reveal d1">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Mar 2023 — Present · 3 Years</div>
+          <div class="tl-role">Software Engineer <span style="color:var(--fog);font-weight:400;font-size:18px">/ SQL &amp; BI Dev</span></div>
+          <div class="tl-company">Dr. Batra's Positive Health Clinic Pvt Ltd · Hyderabad</div>
+          <ul class="tl-points">
+            <li>Designed and optimized SQL Server databases ensuring 99.9% uptime across the organization.</li>
+            <li>Built and maintained 50+ SSRS reports (parameterized, drill-through, interactive) across 10+ departments.</li>
+            <li>Developed a Power BI dashboard for patient enquiry-to-conversion KPI monitoring by leadership.</li>
+            <li>Reduced report load times by up to 60% through query optimization, indexing, and execution plan analysis.</li>
+            <li>Automated reporting tasks via SQL Server Agent Jobs — saving 20+ hours/month.</li>
+            <li>Led end-to-end data migration projects with zero downtime and 100% data accuracy.</li>
+            <li>Trained junior team members on SQL best practices and Power BI reporting.</li>
+          </ul>
+          <div class="tl-metrics">
+            <div class="metric-pill">↓<strong>60%</strong> query time</div>
+            <div class="metric-pill"><strong>50+</strong> reports</div>
+            <div class="metric-pill"><strong>20h</strong>/month saved</div>
+            <div class="metric-pill"><strong>99.9%</strong> uptime</div>
+            <div class="metric-pill"><strong>100%</strong> migration accuracy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       EDUCATION & CERTIFICATIONS
+  ══════════════════════════════════════════════════════ -->
+  <section class="edu-section" id="education">
+    <div class="s-eyebrow reveal">Background</div>
+    <h2 class="s-title reveal">Education &amp; <em>Certifications</em></h2>
+    <div class="edu-grid">
+
+      <!-- Left column: Academic + Earned Certs -->
+      <div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fog2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">Academic</div>
+        <div class="edu-cards reveal">
+          <div class="edu-card">
+            <div><div class="edu-deg">B.Tech — Computer Science &amp; Engineering</div><div class="edu-inst">Malla Reddy Institute of Technology · JNTU Hyderabad</div></div>
+            <div class="edu-yr">2022</div>
+          </div>
+          <div class="edu-card">
+            <div><div class="edu-deg">Intermediate (MPC)</div><div class="edu-inst">Narayana Junior College · CGPA 8.2</div></div>
+            <div class="edu-yr">2014</div>
+          </div>
+          <div class="edu-card">
+            <div><div class="edu-deg">SSC</div><div class="edu-inst">Sat Gyan Techno School · CGPA 8.8</div></div>
+            <div class="edu-yr">2012</div>
+          </div>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fog2);letter-spacing:.12em;text-transform:uppercase;margin:28px 0 16px">Certifications Earned</div>
+        <div class="cert-list reveal">
+          <div class="cert-item">
+            <div class="cert-icon" style="background:var(--teal-bg)">🤖</div>
+            <div><div class="cert-name">Data Science &amp; AI</div><div class="cert-org">Dhaapps</div></div>
+            <span class="cert-badge earned">✓ Earned</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon" style="background:rgba(167,139,250,.1)">🐍</div>
+            <div><div class="cert-name">Python Programming</div><div class="cert-org">Dhaapps</div></div>
+            <span class="cert-badge earned">✓ Earned</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon" style="background:var(--gold-bg)">📐</div>
+            <div><div class="cert-name">Python with DSA</div><div class="cert-org">Frontlines Edutech</div></div>
+            <span class="cert-badge earned">✓ Earned</span>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon" style="background:rgba(91,156,246,.1)">☁</div>
+            <div><div class="cert-name">AWS Cloud Infrastructure</div><div class="cert-org">Brainovision Solutions</div></div>
+            <span class="cert-badge earned">✓ Earned</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: Certification Roadmap + Progress -->
+      <div class="reveal d1">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fog2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px">Certification Roadmap</div>
+        <div class="roadmap">
+          <div class="rm-item"><span class="rm-num">01</span><div class="rm-icon" style="background:rgba(91,156,246,.1)">🗄</div><div class="rm-info"><div class="rm-title">DP-900 — Azure Data Fundamentals</div><div class="rm-sub">Microsoft · Recommended first</div></div><span class="rm-badge rm-next">Study next</span></div>
+          <div class="rm-item"><span class="rm-num">02</span><div class="rm-icon" style="background:var(--gold-bg)">📊</div><div class="rm-info"><div class="rm-title">PL-300 — Power BI Data Analyst</div><div class="rm-sub">Microsoft · High recruiter demand</div></div><span class="rm-badge rm-rec">High impact</span></div>
+          <div class="rm-item"><span class="rm-num">03</span><div class="rm-icon" style="background:var(--teal-bg)">🗃</div><div class="rm-info"><div class="rm-title">DP-080 — Querying with T-SQL</div><div class="rm-sub">Microsoft · Validates SQL expertise</div></div><span class="rm-badge rm-plan">Planned</span></div>
+          <div class="rm-item"><span class="rm-num">04</span><div class="rm-icon" style="background:rgba(167,139,250,.1)">☁</div><div class="rm-info"><div class="rm-title">AWS Cloud Practitioner CLF-C02</div><div class="rm-sub">Amazon · Builds on existing workshop</div></div><span class="rm-badge rm-plan">Planned</span></div>
+          <div class="rm-item"><span class="rm-num">05</span><div class="rm-icon" style="background:rgba(232,184,75,.1)">⚛</div><div class="rm-info"><div class="rm-title">Meta Front-End Developer</div><div class="rm-sub">Meta via Coursera · MERN foundation</div></div><span class="rm-badge rm-plan">Planned</span></div>
+        </div>
+
+        <div style="margin-top:28px;padding:18px;background:var(--panel);border:1px solid var(--edge);border-radius:var(--r)">
+          <div style="font-size:12px;font-weight:600;margin-bottom:14px">Learning Progress</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--fog)">SQL / Database</span><span style="font-family:var(--mono);font-size:11px;color:var(--teal)">95%</span></div><div style="height:3px;background:var(--panel2);border-radius:3px;overflow:hidden"><div style="width:95%;height:100%;background:var(--teal);border-radius:3px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--fog)">HTML / CSS / JS</span><span style="font-family:var(--mono);font-size:11px;color:var(--blue)">72%</span></div><div style="height:3px;background:var(--panel2);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:var(--blue);border-radius:3px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--fog)">React.js</span><span style="font-family:var(--mono);font-size:11px;color:var(--gold)">62%</span></div><div style="height:3px;background:var(--panel2);border-radius:3px;overflow:hidden"><div style="width:62%;height:100%;background:var(--gold);border-radius:3px"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--fog)">Node.js / MongoDB</span><span style="font-family:var(--mono);font-size:11px;color:var(--rose)">40%</span></div><div style="height:3px;background:var(--panel2);border-radius:3px;overflow:hidden"><div style="width:40%;height:100%;background:var(--rose);border-radius:3px"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       CONTACT
+  ══════════════════════════════════════════════════════ -->
+  <section class="contact-section" id="contact">
+    <div class="s-eyebrow reveal">Let's connect</div>
+    <h2 class="s-title reveal">Get In <em>Touch</em></h2>
+    <div class="contact-grid">
+      <div class="contact-left reveal">
+        <h3>Open to SQL &amp; MERN opportunities</h3>
+        <p>I'm actively looking for Senior SQL Developer roles and also excited about full-stack MERN positions where I can apply my database depth with my growing frontend skills. Based in Hyderabad — open to remote.</p>
+        <div class="contact-links">
+          <a class="c-link" href="mailto:bonugowthamsaikumar@gmail.com"><div class="c-icon">✉</div>bonugowthamsaikumar@gmail.com</a>
+          <a class="c-link" href="tel:+917386444030"><div class="c-icon">📞</div>+91 73864 44030</a>
+          <a class="c-link" href="https://linkedin.com/in/gowtham-sai-kumar" target="_blank"><div class="c-icon">in</div>linkedin.com/in/gowtham-sai-kumar</a>
+          <a class="c-link" href="https://github.com/Gowtham-Sai-Kumar" target="_blank"><div class="c-icon">⌥</div>github.com/Gowtham-Sai-Kumar</a>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <form class="contact-form" id="contactForm">
+          <div class="form-row">
+            <div class="fg"><label>Your Name</label><input type="text" placeholder="Ravi Sharma" required /></div>
+            <div class="fg"><label>Email</label><input type="email" placeholder="ravi@company.com" required /></div>
+          </div>
+          <div class="fg"><label>Subject</label><input type="text" placeholder="SQL Developer Role — Hyderabad" /></div>
+          <div class="fg"><label>Message</label><textarea placeholder="Hi Gowtham, we have an opening..." required></textarea></div>
+          <div class="form-submit">
+            <button type="submit" class="cta-primary" id="contactBtn">Send Message →</button>
+            <span class="form-note">Usually replies within 24h</span>
+          </div>
+          <div class="form-success" id="formSuccess">✓ Message sent! I'll get back to you soon.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ──────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-l">© 2025 Gowtham Sai Kumar · SQL Developer · Hyderabad, India</div>
+    <div class="footer-r">
+      <a href="#home">Top ↑</a>
+      <a href="mailto:bonugowthamsaikumar@gmail.com">Email</a>
+      <a href="https://linkedin.com/in/gowtham-sai-kumar" target="_blank">LinkedIn</a>
+      <a href="https://github.com/Gowtham-Sai-Kumar" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- ── JS (ES Module entry point) ─────────────────────── -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

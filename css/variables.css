@@ -1,0 +1,47 @@
+/* =========================================================
+   DESIGN SYSTEM — "Terminal Elegance"
+   Dark editorial meets data terminal aesthetic.
+   Fraunces (serif display) + DM Sans (clean body) + JetBrains Mono
+   Palette: Deep navy-black + Electric teal + Warm off-white
+========================================================= */
+:root {
+  --ink:        #08090f;
+  --ink2:       #0f1019;
+  --ink3:       #161724;
+  --panel:      #1a1b2e;
+  --panel2:     #20213a;
+  --edge:       rgba(255,255,255,0.06);
+  --edge2:      rgba(255,255,255,0.11);
+  --teal:       #00c8a0;
+  --teal-d:     #009e7f;
+  --teal-bg:    rgba(0,200,160,0.07);
+  --teal-glow:  rgba(0,200,160,0.18);
+  --gold:       #e8b84b;
+  --gold-bg:    rgba(232,184,75,0.08);
+  --rose:       #ff6b7a;
+  --blue:       #5b9cf6;
+  --cream:      #f0ede6;
+  --fog:        #7a7d9a;
+  --fog2:       #44465e;
+  --serif:      'Fraunces', Georgia, serif;
+  --sans:       'DM Sans', sans-serif;
+  --mono:       'JetBrains Mono', monospace;
+  --r:          10px;
+  --r2:         18px;
+  --shadow:     0 24px 80px rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] {
+  --ink:     #f5f4f0;
+  --ink2:    #eceae4;
+  --ink3:    #e2e0d8;
+  --panel:   #ffffff;
+  --panel2:  #f5f4f0;
+  --edge:    rgba(0,0,0,0.07);
+  --edge2:   rgba(0,0,0,0.13);
+  --cream:   #1a1b2e;
+  --fog:     #5a5c70;
+  --fog2:    #aaa9b8;
+  --teal-bg: rgba(0,180,140,0.06);
+  --shadow:  0 24px 80px rgba(0,0,0,0.1);
+}
