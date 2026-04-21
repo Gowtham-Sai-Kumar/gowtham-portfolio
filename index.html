@@ -608,18 +608,33 @@
         </div>
       </div>
       <div class="reveal d2">
-        <form class="contact-form" id="contactForm">
+        <form class="contact-form" id="contactForm" action="https://formspree.io/f/xreryqgk" method="POST">
           <div class="form-row">
-            <div class="fg"><label>Your Name</label><input type="text" placeholder="Ravi Sharma" required /></div>
-            <div class="fg"><label>Email</label><input type="email" placeholder="ravi@company.com" required /></div>
+            <div class="fg">
+              <label>Your Name</label>
+              <input type="text" name="name" placeholder="John Doe" required />
+            </div>
+            <div class="fg">
+              <label>Email</label>
+              <input type="email" name="email" placeholder="john@company.com" required />
+            </div>
           </div>
-          <div class="fg"><label>Subject</label><input type="text" placeholder="SQL Developer Role — Hyderabad" /></div>
-          <div class="fg"><label>Message</label><textarea placeholder="Hi Gowtham, we have an opening..." required></textarea></div>
+          <div class="fg">
+            <label>Subject</label>
+            <input type="text" name="subject" placeholder="SQL Developer Role — Hyderabad" />
+          </div>
+          <div class="fg">
+            <label>Message</label>
+            <textarea name="message" placeholder="Hi Gowtham, we have an opening..." required></textarea>
+          </div>
           <div class="form-submit">
             <button type="submit" class="cta-primary" id="contactBtn">Send Message →</button>
             <span class="form-note">Usually replies within 24h</span>
           </div>
           <div class="form-success" id="formSuccess">✓ Message sent! I'll get back to you soon.</div>
+          <div class="form-success" id="formError" style="display:none;background:rgba(255,107,122,.08);border-color:rgba(255,107,122,.25);color:var(--rose)">
+                  ✗ Something went wrong. Please email me directly at bonugowthamsaikumar@gmail.com
+          </div>
         </form>
       </div>
     </div>
