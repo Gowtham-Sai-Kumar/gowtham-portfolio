@@ -1,9 +1,13 @@
 import { rebuildCharts } from './charts.js';
 
-export function scrollTo(selector) {
+export function scrollToSection(selector) {
   document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
 }
-window.scrollTo = scrollTo;
+window.scrollToSection = scrollToSection;
+
+window.scrollToTop = function() {
+  window.scroll({ top: 0, behavior: 'smooth' });
+};
 
 export function initTheme() {
   const btn = document.getElementById('themeBtn');

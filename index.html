@@ -48,7 +48,7 @@
     </div>
     <div class="nav-actions">
       <button class="btn-theme" id="themeBtn" title="Toggle theme">☀</button>
-      <button class="btn-hire" onclick="scrollTo('#contact')">Hire Me</button>
+      <button class="btn-hire" onclick="scrollToSection('#contact')">Hire Me</button>
     </div>
   </nav>
 
@@ -66,12 +66,13 @@
       <div class="hero-sub">SQL Developer · MERN Stack Learner</div>
       <div class="typing-line">
         I build&nbsp;<span class="typing-cursor" id="typeCursor"></span>
-      </div>
-      <div class="hero-cta">
-        <button class="cta-primary" onclick="scrollTo('#projects')">View Projects ↓</button>
-        <button class="cta-secondary" onclick="scrollTo('#contact')">Get In Touch</button>
+    </div>
+    <div class="hero-cta">
+        <button class="cta-primary" onclick="scrollToSection('#projects')">View Projects ↓</button>
+        <button class="cta-secondary" onclick="scrollToSection('#contact')">Get In Touch</button>
         <a href="https://github.com/Gowtham-Sai-Kumar" target="_blank" class="cta-secondary">GitHub ↗</a>
-      </div>
+        <a href="resume.pdf" download="Gowtham_Sai_Kumar_Resume.pdf" class="cta-secondary">📄 Resume</a>
+    </div>
     </div>
 
     <!-- Terminal Card -->
@@ -122,7 +123,18 @@
   <section class="about-section" id="about">
     <div class="about-grid">
       <div class="about-text reveal">
-        <div class="s-eyebrow">Who I am</div>
+      <div class="s-eyebrow">Who I am</div>
+   <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px">
+    <img
+      src="assets/images/profile.jpg"
+      alt="Gowtham Sai Kumar"
+      style="width:68px;height:68px;min-width:68px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid var(--teal);box-shadow:0 0 0 4px var(--teal-bg);"
+    />
+    <div>
+      <div style="font-family:var(--serif);font-size:20px;font-weight:700">Gowtham Sai Kumar</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:3px">SQL Developer · Hyderabad</div>
+    </div>
+   </div>
         <h2 class="s-title" style="font-size:clamp(32px,4vw,46px);margin-bottom:28px">Data + Application<br><em>Developer</em></h2>
         <p>I'm a <strong>SQL Developer with 3 years</strong> of hands-on experience building and optimizing healthcare data systems at Dr. Batra's Positive Health Clinic. My core strength lies in turning complex business data into fast, reliable, decision-ready reports and dashboards.</p>
         <p>Beyond databases, I'm actively expanding into <strong>MERN stack development</strong> — building React frontends, Node.js APIs, and connecting them to real SQL backends. I position myself as a <strong>"Data + Application Developer"</strong> — someone who understands both the data layer and the interface built on top of it.</p>
@@ -492,7 +504,7 @@
         <div class="tl-item">
           <div class="tl-dot"></div>
           <div class="tl-date">Mar 2023 — Present · 3 Years</div>
-          <div class="tl-role">Software Engineer <span style="color:var(--fog);font-weight:400;font-size:18px">/ SQL &amp; BI Dev</span></div>
+          <div class="tl-role">Software Engineer </div>
           <div class="tl-company">Dr. Batra's Positive Health Clinic Pvt Ltd · Hyderabad</div>
           <ul class="tl-points">
             <li>Designed and optimized SQL Server databases ensuring 99.9% uptime across the organization.</li>
@@ -608,7 +620,7 @@
         </div>
       </div>
       <div class="reveal d2">
-        <form class="contact-form" id="contactForm" action="https://formspree.io/f/xreryqgk" method="post">
+        <form class="contact-form" id="contactForm">
           <div class="form-row">
             <div class="fg">
               <label>Your Name</label>
@@ -652,7 +664,7 @@
   </footer>
 
   <!-- Back to Top -->
-  <button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+  <button class="btt" id="btt" onclick="scrollToTop()">↑</button>
 
   <!-- ── JS (ES Module entry point) ─────────────────────── -->
   <script type="module" src="js/main.js"></script>
