@@ -1,17 +1,10 @@
-/* ============================================================
-   ui.js — Theme toggle, nav scroll-spy, ripple, 3D card tilt,
-            back-to-top, contact form, smooth scrollTo helper
-============================================================ */
 import { rebuildCharts } from './charts.js';
 
-/* ── SMOOTH SCROLL HELPER ─────────────────────────────── */
 export function scrollTo(selector) {
   document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
 }
-// Expose globally so inline onclick="scrollTo(...)" works
 window.scrollTo = scrollTo;
 
-/* ── THEME TOGGLE ────────────────────────────────────────── */
 export function initTheme() {
   const btn = document.getElementById('themeBtn');
   if (!btn) return;
@@ -23,11 +16,9 @@ export function initTheme() {
   });
 }
 
-/* ── NAV SCROLL-SPY & ACTIVE STATE ──────────────────────── */
 export function initNavSpy() {
   const sections = document.querySelectorAll('section[id]');
   const navLinks  = document.querySelectorAll('.nav-links a');
-
   window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
     sections.forEach(sec => {
@@ -42,14 +33,12 @@ export function initNavSpy() {
   });
 }
 
-/* ── BACK TO TOP ─────────────────────────────────────────── */
 export function initBackToTop() {
   window.addEventListener('scroll', () => {
     document.getElementById('btt')?.classList.toggle('show', window.scrollY > 400);
   });
 }
 
-/* ── RIPPLE EFFECT ───────────────────────────────────────── */
 export function initRipple() {
   document.querySelectorAll('.cta-primary, .btn-hire').forEach(btn => {
     btn.addEventListener('click', function (e) {
@@ -64,7 +53,6 @@ export function initRipple() {
   });
 }
 
-/* ── 3D CARD TILT ────────────────────────────────────────── */
 export function initCardTilt() {
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('mousemove', e => {
@@ -78,28 +66,44 @@ export function initCardTilt() {
   });
 }
 
-/* ── CONTACT FORM ────────────────────────────────────────── */
 export function initContactForm() {
-  const form = document.querySelector('.contact-form');
+  const form = document.getElementById('contactForm');
   if (!form) return;
-  form.addEventListener('submit', handleContact);
-}
 
-function handleContact(e) {
-  e.preventDefault();
-  const btn = document.getElementById('contactBtn');
-  btn.textContent = 'Sending...';
-  btn.disabled    = true;
-  setTimeout(() => {
-    btn.textContent = '✓ Sent!';
-    document.getElementById('formSuccess').style.display = 'block';
-    e.target.reset();
-    setTimeout(() => {
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const btn        = document.getElementById('contactBtn');
+    const successMsg = document.getElementById('formSuccess');
+    const errorMsg   = document.getElementById('formError');
+
+    btn.textContent = 'Sending...';
+    btn.disabled    = true;
+    if (errorMsg) errorMsg.style.display = 'none';
+
+    try {
+      const res = await fetch('https://formspree.io/f/xreryqgk', {
+        method:  'POST',
+        body:    new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        btn.textContent = '✓ Sent!';
+        if (successMsg) successMsg.style.display = 'block';
+        form.reset();
+        setTimeout(() => {
+          btn.textContent = 'Send Message →';
+          btn.disabled    = false;
+          if (successMsg) successMsg.style.display = 'none';
+        }, 4000);
+      } else {
+        throw new Error('Server error');
+      }
+
+    } catch (err) {
       btn.textContent = 'Send Message →';
       btn.disabled    = false;
-      document.getElementById('formSuccess').style.display = 'none';
-    }, 4000);
-  }, 1000);
+      if (errorMsg) errorMsg.style.display = 'block';
+    }
+  });
 }
-// Expose for legacy inline attribute usage (onsubmit="handleContact(event)")
-window.handleContact = handleContact;
