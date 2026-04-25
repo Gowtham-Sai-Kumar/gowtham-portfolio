@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PatientIQ — Healthcare Analytics System</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ── RESET & TOKENS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070d;--bg2:#0e0e18;--bg3:#13131f;
+  --surface:#181825;--surface2:#1e1e2e;--surface3:#252538;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#e2e2f0;--text2:#8888a8;--text3:#44445a;
+  --green:#00d68f;--green-d:#00a86b;--green-bg:rgba(0,214,143,0.08);
+  --blue:#4da6ff;--blue-bg:rgba(77,166,255,0.08);
+  --amber:#ffb347;--amber-bg:rgba(255,179,71,0.08);
+  --red:#ff6b8a;--red-bg:rgba(255,107,138,0.08);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.08);
+  --font:'Outfit',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:10px;--r2:16px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:4px}
+button{cursor:pointer;font-family:var(--font)}
+input,select{font-family:var(--font)}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ────────────────────────────────────────────── */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;transition:width .25s;
+  z-index:10;
+}
+.sidebar-logo{
+  padding:22px 20px 16px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.logo-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--green);display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#07070d;flex-shrink:0;
+}
+.logo-text{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.logo-text span{color:var(--green)}
+.sidebar-section{padding:18px 12px 8px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;margin:2px 8px;
+  border-radius:var(--r);color:var(--text2);
+  cursor:pointer;transition:all .18s;font-size:13px;font-weight:500;
+  border:none;background:none;width:calc(100% - 16px);text-align:left;
+}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:var(--green-bg);color:var(--green);border:1px solid rgba(0,214,143,0.15)}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{
+  margin-top:auto;padding:16px;
+  border-top:1px solid var(--border);
+}
+.user-pill{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:var(--r);
+  background:var(--surface);
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--green);display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#07070d;flex-shrink:0;
+}
+.user-name{font-size:12px;font-weight:600}
+.user-role{font-size:10px;color:var(--text3)}
+.db-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  margin-left:auto;flex-shrink:0;animation:pulse2 2s infinite;
+}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── MAIN ───────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{
+  padding:0 28px;height:60px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);background:var(--bg2);
+  position:relative;
+}
+.topbar-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-badge{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--border2);
+  font-size:12px;color:var(--text2);
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse2 1.5s infinite}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* ── PAGES ──────────────────────────────────────────────── */
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── KPI CARDS ──────────────────────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);padding:20px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;cursor:default;
+}
+.kpi:hover{border-color:var(--border2);transform:translateY(-2px)}
+.kpi::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0;transition:opacity .2s;
+}
+.kpi:hover::before{opacity:1}
+.kpi.green::before{background:var(--green)}
+.kpi.blue::before{background:var(--blue)}
+.kpi.amber::before{background:var(--amber)}
+.kpi.red::before{background:var(--red)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.kpi-val{font-size:32px;font-weight:800;line-height:1;letter-spacing:-1px;margin-bottom:8px}
+.kpi.green .kpi-val{color:var(--green)}
+.kpi.blue .kpi-val{color:var(--blue)}
+.kpi.amber .kpi-val{color:var(--amber)}
+.kpi.red .kpi-val{color:var(--red)}
+.kpi-change{font-size:12px;color:var(--text2)}
+.kpi-change .up{color:var(--green)}
+.kpi-change .dn{color:var(--red)}
+.kpi-icon{position:absolute;bottom:16px;right:16px;font-size:28px;opacity:.12}
+
+/* ── CHART GRID ─────────────────────────────────────────── */
+.chart-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:22px}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:22px}
+.widget{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);padding:20px;
+}
+.widget-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.widget-title{font-size:14px;font-weight:700}
+.widget-sub{font-size:11px;color:var(--text3)}
+.widget-badge{
+  font-size:10px;padding:3px 9px;border-radius:99px;font-weight:600;
+  font-family:var(--mono);
+}
+.widget-badge.green{background:var(--green-bg);color:var(--green)}
+.widget-badge.blue{background:var(--blue-bg);color:var(--blue)}
+.chart-wrap{position:relative;height:180px}
+
+/* ── TABLE ──────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  padding:10px 14px;text-align:left;
+  font-size:10px;font-weight:600;color:var(--text3);
+  letter-spacing:.08em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);background:var(--surface2);
+  white-space:nowrap;
+}
+thead th:first-child{border-radius:var(--r) 0 0 0}
+thead th:last-child{border-radius:0 var(--r) 0 0}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:11px 14px;color:var(--text2);vertical-align:middle}
+tbody td:first-child{color:var(--text);font-weight:500}
+.mono{font-family:var(--mono);font-size:11px}
+
+/* ── BADGES ─────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.badge.success{background:var(--green-bg);color:var(--green)}
+.badge.warn{background:var(--amber-bg);color:var(--amber)}
+.badge.error{background:var(--red-bg);color:var(--red)}
+.badge.info{background:var(--blue-bg);color:var(--blue)}
+.badge.purple{background:var(--purple-bg);color:var(--purple)}
+
+/* ── CONTROLS ───────────────────────────────────────────── */
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap input{
+  width:100%;padding:9px 14px 9px 36px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);color:var(--text);font-size:13px;outline:none;
+  transition:border-color .2s;
+}
+.search-wrap input:focus{border-color:var(--green)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3)}
+.select-wrap select{
+  padding:9px 14px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);color:var(--text2);font-size:13px;outline:none;
+  transition:border-color .2s;appearance:none;padding-right:28px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2344445a'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.select-wrap select:focus{border-color:var(--green)}
+.btn{
+  padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;
+  border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--green);color:#07070d}
+.btn-primary:hover{background:var(--green-d);transform:translateY(-1px)}
+.btn-ghost{background:var(--surface);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* ── PAGINATION ─────────────────────────────────────────── */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.pag-info{font-size:12px;color:var(--text3)}
+.pag-btns{display:flex;gap:6px}
+.pag-btn{
+  width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text2);font-size:12px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all .15s;
+}
+.pag-btn:hover,.pag-btn.active{background:var(--green);color:#07070d;border-color:var(--green)}
+
+/* ── SKELETON ───────────────────────────────────────────── */
+.skeleton{
+  background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;
+}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ── SQL VIEWER ─────────────────────────────────────────── */
+.sql-block{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;font-family:var(--mono);
+  font-size:12px;line-height:1.8;overflow-x:auto;position:relative;
+}
+.sql-kw{color:#7b6fff}
+.sql-fn{color:var(--red)}
+.sql-str{color:var(--green)}
+.sql-cm{color:var(--text3)}
+.sql-num{color:var(--amber)}
+.sql-tbl{color:#4da6ff}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  padding:4px 10px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border2);
+  color:var(--text3);font-size:10px;cursor:pointer;
+  font-family:var(--font);transition:all .2s;
+}
+.copy-btn:hover{color:var(--green);border-color:var(--green)}
+
+/* ── REPORT SECTION ─────────────────────────────────────── */
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.report-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);padding:20px;transition:all .2s;cursor:pointer;
+}
+.report-card:hover{border-color:var(--green);transform:translateY(-2px)}
+.report-icon{font-size:28px;margin-bottom:12px}
+.report-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.report-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.report-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.report-meta{font-size:11px;color:var(--text3)}
+
+/* ── APPOINTMENT STATUS ─────────────────────────────────── */
+.appt-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ── STATS ROW ──────────────────────────────────────────── */
+.stats-row{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.stat-mini{
+  flex:1;min-width:140px;padding:14px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  display:flex;align-items:center;gap:12px;
+}
+.stat-mini-icon{font-size:20px;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.stat-mini-val{font-size:20px;font-weight:700;line-height:1}
+.stat-mini-label{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── PROGRESS BAR ───────────────────────────────────────── */
+.prog-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.prog-label{font-size:12px;color:var(--text2);min-width:120px}
+.prog-track{flex:1;height:6px;background:var(--surface3);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.prog-pct{font-family:var(--mono);font-size:11px;min-width:34px;text-align:right}
+
+/* ── TOAST ──────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:28px;right:28px;z-index:999;
+  padding:12px 20px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--green);
+  color:var(--green);font-size:13px;font-weight:600;
+  transform:translateY(60px);opacity:0;
+  transition:all .3s;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── EMPTY STATE ────────────────────────────────────────── */
+.empty{text-align:center;padding:48px;color:var(--text3)}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-text{font-size:14px}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-grid,.chart-grid-3,.report-grid{grid-template-columns:1fr}
+  .sidebar{width:60px}
+  .logo-text,.nav-item span,.sidebar-section,.user-name,.user-role{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .content{padding:16px}
+  .topbar{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">P</div>
+      <div class="logo-text">Patient<span>IQ</span></div>
+    </div>
+    <div class="sidebar-section">Analytics</div>
+    <button class="nav-item active" onclick="navigate('dashboard',this)">
+      <span class="nav-icon">📊</span><span>Dashboard</span>
+    </button>
+    <button class="nav-item" onclick="navigate('patients',this)">
+      <span class="nav-icon">👥</span><span>Patients</span>
+    </button>
+    <button class="nav-item" onclick="navigate('appointments',this)">
+      <span class="nav-icon">📅</span><span>Appointments</span>
+    </button>
+    <div class="sidebar-section">Reporting</div>
+    <button class="nav-item" onclick="navigate('reports',this)">
+      <span class="nav-icon">📄</span><span>Reports</span>
+    </button>
+    <button class="nav-item" onclick="navigate('sql',this)">
+      <span class="nav-icon">🗄</span><span>SQL Queries</span>
+    </button>
+    <div class="sidebar-section">System</div>
+    <button class="nav-item" onclick="navigate('api',this)">
+      <span class="nav-icon">⚡</span><span>API Docs</span>
+    </button>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">G</div>
+        <div>
+          <div class="user-name">Gowtham SK</div>
+          <div class="user-role">SQL Developer</div>
+        </div>
+        <div class="db-dot"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard Overview</div>
+      <div class="topbar-right">
+        <!-- Global Search -->
+        <div class="search-wrap" style="min-width:260px">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="globalSearch" placeholder="Search patient, ID, mobile..." oninput="globalSearchFn()" style="background:var(--bg3);border-color:var(--border2)"/>
+        </div>
+        <!-- Global Search Results Dropdown -->
+        <div id="globalResults" style="display:none;position:absolute;top:56px;right:240px;width:340px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);z-index:200;box-shadow:0 20px 60px rgba(0,0,0,0.5);overflow:hidden;max-height:380px;overflow-y:auto"></div>
+        <div class="topbar-badge"><span class="live-dot"></span>SQL Server Connected</div>
+        <div class="topbar-badge">📅 <span id="todayDate"></span></div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ DASHBOARD PAGE ══════════════════════════════ -->
+      <div class="page active" id="page-dashboard">
+        <!-- Skeleton loader (briefly shown) -->
+        <div id="skeletonDash">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px">
+            <div class="skeleton" style="height:110px"></div>
+            <div class="skeleton" style="height:110px"></div>
+            <div class="skeleton" style="height:110px"></div>
+            <div class="skeleton" style="height:110px"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+            <div class="skeleton" style="height:240px"></div>
+            <div class="skeleton" style="height:240px"></div>
+          </div>
+        </div>
+
+        <div id="dashContent" style="display:none">
+          <!-- KPI Row -->
+          <div class="kpi-grid">
+            <div class="kpi green">
+              <div class="kpi-label">Total Patients</div>
+              <div class="kpi-val" id="kpiTotal">0</div>
+              <div class="kpi-change"><span class="up">↑ 8.4%</span> vs last month</div>
+              <div class="kpi-icon">👥</div>
+            </div>
+            <div class="kpi blue">
+              <div class="kpi-label">Active Cases</div>
+              <div class="kpi-val" id="kpiActive">0</div>
+              <div class="kpi-change"><span class="up">↑ 12%</span> this week</div>
+              <div class="kpi-icon">🔵</div>
+            </div>
+            <div class="kpi amber">
+              <div class="kpi-label">Consultations Done</div>
+              <div class="kpi-val" id="kpiConsult">0</div>
+              <div class="kpi-change"><span class="up">↑ 5.2%</span> conversion rate</div>
+              <div class="kpi-icon">✅</div>
+            </div>
+            <div class="kpi red">
+              <div class="kpi-label">Missed / No-show</div>
+              <div class="kpi-val" id="kpiMissed">0</div>
+              <div class="kpi-change"><span class="dn">↑ 2.1%</span> needs attention</div>
+              <div class="kpi-icon">⚠️</div>
+            </div>
+          </div>
+
+          <!-- Charts Row 1 -->
+          <div class="chart-grid">
+            <div class="widget">
+              <div class="widget-head">
+                <div>
+                  <div class="widget-title">Monthly Patient Visits</div>
+                  <div class="widget-sub">Last 12 months · SQL: COUNT(*) GROUP BY MONTH</div>
+                </div>
+                <span class="widget-badge green">Live</span>
+              </div>
+              <div class="chart-wrap"><canvas id="visitChart"></canvas></div>
+            </div>
+            <div class="widget">
+              <div class="widget-head">
+                <div>
+                  <div class="widget-title">Treatment Type</div>
+                  <div class="widget-sub">Clinic distribution</div>
+                </div>
+                <span class="widget-badge blue">Breakdown</span>
+              </div>
+              <div class="chart-wrap"><canvas id="treatChart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Charts Row 2 -->
+          <div class="chart-grid-3">
+            <div class="widget">
+              <div class="widget-head">
+                <div class="widget-title">Daily Trend (This Week)</div>
+              </div>
+              <div class="chart-wrap" style="height:130px"><canvas id="dailyChart"></canvas></div>
+            </div>
+            <div class="widget">
+              <div class="widget-head">
+                <div class="widget-title">Conversion Rate</div>
+              </div>
+              <div style="margin-top:8px">
+                <div class="prog-bar-row">
+                  <div class="prog-label">Homeopathy</div>
+                  <div class="prog-track"><div class="prog-fill" style="width:72%;background:var(--green)"></div></div>
+                  <div class="prog-pct" style="color:var(--green)">72%</div>
+                </div>
+                <div class="prog-bar-row">
+                  <div class="prog-label">Hair Care</div>
+                  <div class="prog-track"><div class="prog-fill" style="width:65%;background:var(--blue)"></div></div>
+                  <div class="prog-pct" style="color:var(--blue)">65%</div>
+                </div>
+                <div class="prog-bar-row">
+                  <div class="prog-label">Skin Care</div>
+                  <div class="prog-track"><div class="prog-fill" style="width:58%;background:var(--amber)"></div></div>
+                  <div class="prog-pct" style="color:var(--amber)">58%</div>
+                </div>
+                <div class="prog-bar-row">
+                  <div class="prog-label">Dental</div>
+                  <div class="prog-track"><div class="prog-fill" style="width:80%;background:var(--purple)"></div></div>
+                  <div class="prog-pct" style="color:var(--purple)">80%</div>
+                </div>
+                <div class="prog-bar-row">
+                  <div class="prog-label">Nutrition</div>
+                  <div class="prog-track"><div class="prog-fill" style="width:45%;background:var(--red)"></div></div>
+                  <div class="prog-pct" style="color:var(--red)">45%</div>
+                </div>
+              </div>
+            </div>
+            <div class="widget">
+              <div class="widget-head">
+                <div class="widget-title">Top Clinics</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text2)">Hyderabad Central</span>
+                  <span class="badge success">2,840</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text2)">Secunderabad</span>
+                  <span class="badge info">1,920</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text2)">Banjara Hills</span>
+                  <span class="badge purple">1,650</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text2)">Jubilee Hills</span>
+                  <span class="badge warn">1,210</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;color:var(--text2)">Kukatpally</span>
+                  <span class="badge warn">980</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Patients Quick View -->
+          <div class="widget">
+            <div class="widget-head">
+              <div>
+                <div class="widget-title">Recent Registrations</div>
+                <div class="widget-sub">Last 24 hours · Auto-refreshes every 5 min</div>
+              </div>
+              <button class="btn btn-ghost" onclick="navigate('patients',document.querySelector('[onclick*=patients]'))">View All →</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>Patient ID</th><th>Name</th><th>Clinic</th><th>Treatment</th><th>Status</th><th>Registered</th>
+                </tr></thead>
+                <tbody id="recentPatientsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PATIENTS PAGE ═══════════════════════════════ -->
+      <div class="page" id="page-patients">
+        <!-- Search hint bar -->
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)">
+          <span style="color:var(--green)">💡 Search tip:</span>
+          You can search by <strong style="color:var(--text)">Patient Name</strong>, <strong style="color:var(--text)">Patient ID</strong> (e.g. P10001), or <strong style="color:var(--text)">Mobile Number</strong>. Use the filters below to narrow by clinic, status, or treatment type.
+        </div>
+        <div class="controls">
+          <div class="search-wrap" style="min-width:260px">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Name, Patient ID (P10001), or mobile..." id="patientSearch" oninput="filterPatients()"/>
+          </div>
+          <div class="select-wrap">
+            <select id="clinicFilter" onchange="filterPatients()">
+              <option value="">All Clinics</option>
+              <option>Hyderabad Central</option>
+              <option>Secunderabad</option>
+              <option>Banjara Hills</option>
+              <option>Jubilee Hills</option>
+              <option>Kukatpally</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select id="treatmentFilter" onchange="filterPatients()">
+              <option value="">All Treatments</option>
+              <option>Homeopathy</option>
+              <option>Hair Care</option>
+              <option>Skin Care</option>
+              <option>Dental</option>
+              <option>Nutrition</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select id="statusFilter" onchange="filterPatients()">
+              <option value="">All Status</option>
+              <option>Active</option>
+              <option>Completed</option>
+              <option>Missed</option>
+              <option>Pending</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost" onclick="clearFilters()">✕ Clear</button>
+          <button class="btn btn-ghost" onclick="exportCSV()">📥 Export CSV</button>
+          <button class="btn btn-primary" onclick="showToast('Patient added successfully!')">+ Add Patient</button>
+        </div>
+
+        <div class="widget">
+          <div class="widget-head">
+            <div>
+              <div class="widget-title">Patient Management</div>
+              <div class="widget-sub" id="patientCount">Loading...</div>
+            </div>
+            <span class="widget-badge green" id="patientBadge">1,200 records</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Patient ID</th><th>Name</th><th>Mobile</th><th>Clinic</th><th>Treatment</th><th>Status</th><th>Last Visit</th><th>Action</th>
+              </tr></thead>
+              <tbody id="patientBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="pag-info" id="pagInfo"></div>
+            <div class="pag-btns" id="pagBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ APPOINTMENTS PAGE ═══════════════════════════ -->
+      <div class="page" id="page-appointments">
+        <div class="stats-row">
+          <div class="stat-mini">
+            <div class="stat-mini-icon" style="background:var(--green-bg)">✅</div>
+            <div>
+              <div class="stat-mini-val" style="color:var(--green)">642</div>
+              <div class="stat-mini-label">VC Completed</div>
+            </div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-icon" style="background:var(--red-bg)">❌</div>
+            <div>
+              <div class="stat-mini-val" style="color:var(--red)">128</div>
+              <div class="stat-mini-label">Patient No-show</div>
+            </div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-icon" style="background:var(--amber-bg)">👨‍⚕️</div>
+            <div>
+              <div class="stat-mini-val" style="color:var(--amber)">84</div>
+              <div class="stat-mini-label">Doctor-only Joined</div>
+            </div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-icon" style="background:var(--blue-bg)">⏳</div>
+            <div>
+              <div class="stat-mini-val" style="color:var(--blue)">196</div>
+              <div class="stat-mini-label">Upcoming</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Completed VC</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Patient missed</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Doctor-only joined</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Upcoming</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Rescheduled</div>
+        </div>
+
+        <div class="widget">
+          <div class="widget-head">
+            <div class="widget-title">Appointment & VC Tracker</div>
+            <div class="controls" style="margin-bottom:0">
+              <div class="search-wrap" style="min-width:180px">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search appointments..." id="apptSearch" oninput="filterAppts()"/>
+              </div>
+              <div class="select-wrap">
+                <select id="apptStatusFilter" onchange="filterAppts()">
+                  <option value="">All Status</option>
+                  <option>Completed</option>
+                  <option>Missed</option>
+                  <option>Doctor-only</option>
+                  <option>Upcoming</option>
+                  <option>Rescheduled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Appt ID</th><th>Patient</th><th>Doctor</th><th>Clinic</th><th>Date & Time</th><th>VC Status</th><th>Duration</th><th>Notes</th>
+              </tr></thead>
+              <tbody id="apptBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="pag-info" id="apptPagInfo"></div>
+            <div class="pag-btns" id="apptPagBtns"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REPORTS PAGE ════════════════════════════════ -->
+      <div class="page" id="page-reports">
+        <div class="report-grid">
+          <div class="report-card" onclick="runReport('clinic')">
+            <div class="report-icon">🏥</div>
+            <div class="report-title">Clinic-wise Patient Report</div>
+            <p class="report-desc">Aggregated patient count, conversion rate, and revenue breakdown per clinic. Uses GROUP BY with multiple JOINs across Patients, Appointments, and Clinics tables.</p>
+            <div class="report-footer">
+              <div class="report-meta">Last run: 2 hours ago</div>
+              <button class="btn btn-primary">Generate →</button>
+            </div>
+          </div>
+          <div class="report-card" onclick="runReport('daterange')">
+            <div class="report-icon">📅</div>
+            <div class="report-title">Date Range Analysis</div>
+            <p class="report-desc">Filter patient visits, appointments, and consultations by custom date range. Uses BETWEEN operator with indexed date columns for fast retrieval.</p>
+            <div class="report-footer">
+              <div class="report-meta">Last run: Yesterday</div>
+              <button class="btn btn-primary">Generate →</button>
+            </div>
+          </div>
+          <div class="report-card" onclick="runReport('vc')">
+            <div class="report-icon">📹</div>
+            <div class="report-title">VC Session Summary</div>
+            <p class="report-desc">Video consultation completion rates, no-show analysis, and doctor utilization metrics. Stored procedure: usp_GetVCSummary.</p>
+            <div class="report-footer">
+              <div class="report-meta">Scheduled: Daily 9AM</div>
+              <button class="btn btn-primary">Generate →</button>
+            </div>
+          </div>
+          <div class="report-card" onclick="runReport('treatment')">
+            <div class="report-icon">💊</div>
+            <div class="report-title">Treatment Type Breakdown</div>
+            <p class="report-desc">Homeopathy vs other treatment comparisons with patient outcomes, average sessions, and revenue per treatment type.</p>
+            <div class="report-footer">
+              <div class="report-meta">Last run: 3 days ago</div>
+              <button class="btn btn-primary">Generate →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report Output -->
+        <div class="widget" id="reportOutput" style="display:none">
+          <div class="widget-head">
+            <div>
+              <div class="widget-title" id="reportTitle">Report Output</div>
+              <div class="widget-sub" id="reportMeta"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost" onclick="exportCSV()">📥 CSV</button>
+              <button class="btn btn-ghost" onclick="showToast('PDF export simulated!')">📄 PDF</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr id="reportHead"></tr></thead>
+              <tbody id="reportBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SQL PAGE ════════════════════════════════════ -->
+      <div class="page" id="page-sql">
+        <div style="display:flex;flex-direction:column;gap:20px">
+
+          <div class="widget">
+            <div class="widget-head">
+              <div>
+                <div class="widget-title">Query 1 — Patient Count by Clinic</div>
+                <div class="widget-sub">Uses JOIN + GROUP BY + ORDER BY · Execution: ~1.2s</div>
+              </div>
+              <span class="widget-badge green">Optimized</span>
+            </div>
+            <div class="sql-block">
+              <button class="copy-btn" onclick="copySql(this)">Copy</button>
+<span class="sql-cm">-- Get total patients per clinic with conversion rate</span>
+<span class="sql-kw">SELECT</span>
+    c.<span class="sql-tbl">ClinicName</span>,
+    <span class="sql-fn">COUNT</span>(p.<span class="sql-tbl">PatientID</span>)         <span class="sql-kw">AS</span> <span class="sql-str">TotalPatients</span>,
+    <span class="sql-fn">SUM</span>(<span class="sql-kw">CASE WHEN</span> a.<span class="sql-tbl">Status</span> = <span class="sql-str">'Completed'</span>
+         <span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>)  <span class="sql-kw">AS</span> <span class="sql-str">CompletedConsults</span>,
+    <span class="sql-fn">ROUND</span>(
+        <span class="sql-fn">SUM</span>(<span class="sql-kw">CASE WHEN</span> a.<span class="sql-tbl">Status</span> = <span class="sql-str">'Completed'</span>
+             <span class="sql-kw">THEN</span> <span class="sql-num">1.0</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) /
+        <span class="sql-fn">COUNT</span>(p.<span class="sql-tbl">PatientID</span>) * <span class="sql-num">100</span>, <span class="sql-num">2</span>
+    )                              <span class="sql-kw">AS</span> <span class="sql-str">ConversionRate</span>
+<span class="sql-kw">FROM</span>         <span class="sql-tbl">Patients</span>     p
+<span class="sql-kw">INNER JOIN</span>   <span class="sql-tbl">Clinics</span>      c  <span class="sql-kw">ON</span> p.<span class="sql-tbl">ClinicID</span>  = c.<span class="sql-tbl">ClinicID</span>
+<span class="sql-kw">LEFT JOIN</span>    <span class="sql-tbl">Appointments</span> a  <span class="sql-kw">ON</span> p.<span class="sql-tbl">PatientID</span> = a.<span class="sql-tbl">PatientID</span>
+<span class="sql-kw">GROUP BY</span>     c.<span class="sql-tbl">ClinicName</span>
+<span class="sql-kw">ORDER BY</span>     TotalPatients <span class="sql-kw">DESC</span>;
+            </div>
+          </div>
+
+          <div class="widget">
+            <div class="widget-head">
+              <div>
+                <div class="widget-title">Query 2 — Monthly Visit Trend</div>
+                <div class="widget-sub">Uses DATEPART + YEAR function + Indexed date columns</div>
+              </div>
+              <span class="widget-badge blue">Aggregation</span>
+            </div>
+            <div class="sql-block">
+              <button class="copy-btn" onclick="copySql(this)">Copy</button>
+<span class="sql-cm">-- Monthly patient visit trend for the past 12 months</span>
+<span class="sql-kw">SELECT</span>
+    <span class="sql-fn">YEAR</span>(VisitDate)                    <span class="sql-kw">AS</span> <span class="sql-str">VisitYear</span>,
+    <span class="sql-fn">MONTH</span>(VisitDate)                   <span class="sql-kw">AS</span> <span class="sql-str">VisitMonth</span>,
+    <span class="sql-fn">DATENAME</span>(<span class="sql-kw">MONTH</span>, VisitDate)        <span class="sql-kw">AS</span> <span class="sql-str">MonthName</span>,
+    <span class="sql-fn">COUNT</span>(*)                           <span class="sql-kw">AS</span> <span class="sql-str">TotalVisits</span>,
+    <span class="sql-fn">COUNT</span>(<span class="sql-kw">DISTINCT</span> PatientID)         <span class="sql-kw">AS</span> <span class="sql-str">UniquePatients</span>
+<span class="sql-kw">FROM</span>  <span class="sql-tbl">Appointments</span>
+<span class="sql-kw">WHERE</span> VisitDate >= <span class="sql-fn">DATEADD</span>(<span class="sql-kw">MONTH</span>, <span class="sql-num">-12</span>, <span class="sql-fn">GETDATE</span>())
+<span class="sql-kw">GROUP BY</span>
+    <span class="sql-fn">YEAR</span>(VisitDate),
+    <span class="sql-fn">MONTH</span>(VisitDate),
+    <span class="sql-fn">DATENAME</span>(<span class="sql-kw">MONTH</span>, VisitDate)
+<span class="sql-kw">ORDER BY</span> VisitYear, VisitMonth;
+            </div>
+          </div>
+
+          <div class="widget">
+            <div class="widget-head">
+              <div>
+                <div class="widget-title">Stored Procedure — VC Session Summary</div>
+                <div class="widget-sub">Parameterized stored procedure with error handling · Production-ready</div>
+              </div>
+              <span class="widget-badge" style="background:var(--purple-bg);color:var(--purple)">Stored Proc</span>
+            </div>
+            <div class="sql-block">
+              <button class="copy-btn" onclick="copySql(this)">Copy</button>
+<span class="sql-kw">CREATE PROCEDURE</span> <span class="sql-fn">usp_GetVCSummary</span>
+    <span class="sql-num">@FromDate</span>  <span class="sql-kw">DATE</span> = <span class="sql-kw">NULL</span>,
+    <span class="sql-num">@ToDate</span>    <span class="sql-kw">DATE</span> = <span class="sql-kw">NULL</span>,
+    <span class="sql-num">@ClinicID</span>  <span class="sql-kw">INT</span>  = <span class="sql-kw">NULL</span>
+<span class="sql-kw">AS</span>
+<span class="sql-kw">BEGIN</span>
+    <span class="sql-kw">SET NOCOUNT ON</span>;
+
+    <span class="sql-cm">-- Default to current month if no dates given</span>
+    <span class="sql-kw">SET</span> <span class="sql-num">@FromDate</span> = <span class="sql-fn">ISNULL</span>(<span class="sql-num">@FromDate</span>, <span class="sql-fn">DATEADD</span>(<span class="sql-kw">DAY</span>, <span class="sql-num">1</span>,
+                    <span class="sql-fn">EOMONTH</span>(<span class="sql-fn">GETDATE</span>(), <span class="sql-num">-1</span>)));
+    <span class="sql-kw">SET</span> <span class="sql-num">@ToDate</span>   = <span class="sql-fn">ISNULL</span>(<span class="sql-num">@ToDate</span>, <span class="sql-fn">GETDATE</span>());
+
+    <span class="sql-kw">SELECT</span>
+        c.<span class="sql-tbl">ClinicName</span>,
+        <span class="sql-fn">COUNT</span>(*)                                         <span class="sql-kw">AS</span> <span class="sql-str">TotalSessions</span>,
+        <span class="sql-fn">SUM</span>(<span class="sql-kw">CASE WHEN</span> v.<span class="sql-tbl">VCStatus</span> = <span class="sql-str">'Completed'</span>   <span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> <span class="sql-str">Completed</span>,
+        <span class="sql-fn">SUM</span>(<span class="sql-kw">CASE WHEN</span> v.<span class="sql-tbl">VCStatus</span> = <span class="sql-str">'PatientMissed'</span><span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> <span class="sql-str">PatientMissed</span>,
+        <span class="sql-fn">SUM</span>(<span class="sql-kw">CASE WHEN</span> v.<span class="sql-tbl">VCStatus</span> = <span class="sql-str">'DoctorOnly'</span>  <span class="sql-kw">THEN</span> <span class="sql-num">1</span> <span class="sql-kw">ELSE</span> <span class="sql-num">0</span> <span class="sql-kw">END</span>) <span class="sql-kw">AS</span> <span class="sql-str">DoctorOnlyJoined</span>
+    <span class="sql-kw">FROM</span>       <span class="sql-tbl">VCSessions</span>   v
+    <span class="sql-kw">INNER JOIN</span> <span class="sql-tbl">Clinics</span>      c <span class="sql-kw">ON</span> v.<span class="sql-tbl">ClinicID</span>  = c.<span class="sql-tbl">ClinicID</span>
+    <span class="sql-kw">WHERE</span>
+        v.<span class="sql-tbl">SessionDate</span> <span class="sql-kw">BETWEEN</span> <span class="sql-num">@FromDate</span> <span class="sql-kw">AND</span> <span class="sql-num">@ToDate</span>
+        <span class="sql-kw">AND</span> (<span class="sql-num">@ClinicID</span> <span class="sql-kw">IS NULL OR</span> v.<span class="sql-tbl">ClinicID</span> = <span class="sql-num">@ClinicID</span>)
+    <span class="sql-kw">GROUP BY</span>   c.<span class="sql-tbl">ClinicName</span>
+    <span class="sql-kw">ORDER BY</span>   Completed <span class="sql-kw">DESC</span>;
+<span class="sql-kw">END</span>;
+            </div>
+          </div>
+
+          <div class="widget">
+            <div class="widget-head">
+              <div>
+                <div class="widget-title">Query 3 — Missed VC with Edge Cases</div>
+                <div class="widget-sub">Handles NULL mobile, duplicate entries, failed sessions</div>
+              </div>
+              <span class="widget-badge" style="background:var(--amber-bg);color:var(--amber)">Edge Cases</span>
+            </div>
+            <div class="sql-block">
+              <button class="copy-btn" onclick="copySql(this)">Copy</button>
+<span class="sql-cm">-- Find missed VCs with patient details, handle NULLs and duplicates</span>
+<span class="sql-kw">WITH</span> <span class="sql-tbl">MissedSessions</span> <span class="sql-kw">AS</span> (
+    <span class="sql-kw">SELECT</span>
+        p.<span class="sql-tbl">PatientID</span>,
+        p.<span class="sql-tbl">PatientName</span>,
+        <span class="sql-fn">ISNULL</span>(p.<span class="sql-tbl">Mobile</span>, <span class="sql-str">'N/A'</span>)   <span class="sql-kw">AS</span> <span class="sql-str">Mobile</span>,  <span class="sql-cm">-- Handle missing mobile</span>
+        c.<span class="sql-tbl">ClinicName</span>,
+        v.<span class="sql-tbl">SessionDate</span>,
+        v.<span class="sql-tbl">VCStatus</span>,
+        <span class="sql-fn">ROW_NUMBER</span>() <span class="sql-kw">OVER</span> (
+            <span class="sql-kw">PARTITION BY</span> p.<span class="sql-tbl">PatientID</span>, v.<span class="sql-tbl">SessionDate</span>
+            <span class="sql-kw">ORDER BY</span>     v.<span class="sql-tbl">SessionID</span> <span class="sql-kw">DESC</span>
+        ) <span class="sql-kw">AS</span> <span class="sql-str">rn</span>                        <span class="sql-cm">-- Remove duplicates</span>
+    <span class="sql-kw">FROM</span>       <span class="sql-tbl">VCSessions</span>  v
+    <span class="sql-kw">INNER JOIN</span> <span class="sql-tbl">Patients</span>    p <span class="sql-kw">ON</span> v.<span class="sql-tbl">PatientID</span> = p.<span class="sql-tbl">PatientID</span>
+    <span class="sql-kw">INNER JOIN</span> <span class="sql-tbl">Clinics</span>     c <span class="sql-kw">ON</span> v.<span class="sql-tbl">ClinicID</span>  = c.<span class="sql-tbl">ClinicID</span>
+    <span class="sql-kw">WHERE</span> v.<span class="sql-tbl">VCStatus</span> <span class="sql-kw">IN</span> (<span class="sql-str">'PatientMissed'</span>, <span class="sql-str">'Failed'</span>)
+)
+<span class="sql-kw">SELECT</span> * <span class="sql-kw">FROM</span> <span class="sql-tbl">MissedSessions</span>
+<span class="sql-kw">WHERE</span>  rn = <span class="sql-num">1</span>                         <span class="sql-cm">-- Keep latest record only</span>
+<span class="sql-kw">ORDER BY</span> SessionDate <span class="sql-kw">DESC</span>;
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ API PAGE ════════════════════════════════════ -->
+      <div class="page" id="page-api">
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <div class="widget">
+            <div class="widget-head">
+              <div class="widget-title">Backend API Reference</div>
+              <div class="widget-sub">Node.js + Express · Base URL: https://patientiq-api.onrender.com/api</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2)">
+                  <span class="badge success" style="min-width:44px;justify-content:center">GET</span>
+                  <span style="font-family:var(--mono);font-size:12px;color:var(--text)">/patients</span>
+                  <span style="font-size:12px;color:var(--text2);margin-left:auto">Returns paginated patient list</span>
+                </div>
+                <div class="sql-block" style="border:none;border-radius:0;margin:0">
+<span class="sql-cm">// Query params: ?page=1&limit=20&clinic=Hyderabad&status=Active&search=Ravi</span>
+<span class="sql-cm">// Response:</span>
+{
+  <span class="sql-str">"success"</span>: <span class="sql-kw">true</span>,
+  <span class="sql-str">"data"</span>: {
+    <span class="sql-str">"patients"</span>: [ ... ],
+    <span class="sql-str">"total"</span>: <span class="sql-num">1200</span>,
+    <span class="sql-str">"page"</span>: <span class="sql-num">1</span>,
+    <span class="sql-str">"pages"</span>: <span class="sql-num">60</span>
+  }
+}
+                </div>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2)">
+                  <span class="badge success" style="min-width:44px;justify-content:center">GET</span>
+                  <span style="font-family:var(--mono);font-size:12px;color:var(--text)">/appointments</span>
+                  <span style="font-size:12px;color:var(--text2);margin-left:auto">Returns appointment & VC data</span>
+                </div>
+                <div class="sql-block" style="border:none;border-radius:0;margin:0">
+<span class="sql-cm">// Query params: ?status=Completed&from=2025-01-01&to=2025-03-31</span>
+<span class="sql-cm">// Calls: usp_GetVCSummary stored procedure internally</span>
+                </div>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2)">
+                  <span class="badge success" style="min-width:44px;justify-content:center">GET</span>
+                  <span style="font-family:var(--mono);font-size:12px;color:var(--text)">/reports/:type</span>
+                  <span style="font-size:12px;color:var(--text2);margin-left:auto">Generate named report</span>
+                </div>
+                <div class="sql-block" style="border:none;border-radius:0;margin:0">
+<span class="sql-cm">// :type = clinic | daterange | vc | treatment</span>
+<span class="sql-cm">// Supports ?format=csv for export</span>
+                </div>
+              </div>
+
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2)">
+                  <span class="badge info" style="min-width:44px;justify-content:center">POST</span>
+                  <span style="font-family:var(--mono);font-size:12px;color:var(--text)">/patients</span>
+                  <span style="font-size:12px;color:var(--text2);margin-left:auto">Add new patient record</span>
+                </div>
+                <div class="sql-block" style="border:none;border-radius:0;margin:0">
+<span class="sql-cm">// Body:</span>
+{
+  <span class="sql-str">"name"</span>: <span class="sql-str">"Ravi Kumar"</span>,
+  <span class="sql-str">"mobile"</span>: <span class="sql-str">"9876543210"</span>,  <span class="sql-cm">// optional — handled as NULL in DB</span>
+  <span class="sql-str">"clinicId"</span>: <span class="sql-num">3</span>,
+  <span class="sql-str">"treatmentType"</span>: <span class="sql-str">"Homeopathy"</span>
+}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="widget">
+            <div class="widget-head"><div class="widget-title">Tech Stack</div></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">⚛️</div>
+                <div style="font-size:13px;font-weight:600">React.js</div>
+                <div style="font-size:11px;color:var(--text3)">Frontend SPA</div>
+              </div>
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">🟢</div>
+                <div style="font-size:13px;font-weight:600">Node.js + Express</div>
+                <div style="font-size:11px;color:var(--text3)">REST API Backend</div>
+              </div>
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">🗄</div>
+                <div style="font-size:13px;font-weight:600">SQL Server</div>
+                <div style="font-size:11px;color:var(--text3)">Primary Database</div>
+              </div>
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">🍃</div>
+                <div style="font-size:13px;font-weight:600">MongoDB</div>
+                <div style="font-size:11px;color:var(--text3)">Logs & Sessions</div>
+              </div>
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">📊</div>
+                <div style="font-size:13px;font-weight:600">Recharts</div>
+                <div style="font-size:11px;color:var(--text3)">Data Visualisation</div>
+              </div>
+              <div style="padding:14px;background:var(--surface2);border-radius:var(--r);text-align:center">
+                <div style="font-size:24px;margin-bottom:6px">🚀</div>
+                <div style="font-size:13px;font-weight:600">Vercel + Render</div>
+                <div style="font-size:11px;color:var(--text3)">Deployment</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ <span id="toastMsg"></span></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA GENERATION — 1200 realistic patient records
+═══════════════════════════════════════════════════════════ */
+const firstNames=['Ravi','Priya','Arjun','Sneha','Kiran','Divya','Suresh','Meena','Vikram','Ananya','Rahul','Lakshmi','Anil','Pooja','Sanjay','Kavitha','Rajesh','Nisha','Venkat','Swathi','Ramesh','Asha','Mahesh','Deepika','Sunil','Geeta','Krishna','Sunita','Ganesh','Radha','Mohan','Uma','Naresh','Yamuna','Harish','Saritha','Praveen','Vani','Sachin','Bhavana'];
+const lastNames=['Kumar','Reddy','Sharma','Rao','Singh','Naidu','Verma','Patel','Gupta','Chandra','Iyer','Nair','Pillai','Murthy','Shetty','Joshi','Desai','Mehta','Bhat','Kaur'];
+const clinics=['Hyderabad Central','Secunderabad','Banjara Hills','Jubilee Hills','Kukatpally'];
+const treatments=['Homeopathy','Hair Care','Skin Care','Dental','Nutrition'];
+const statuses=['Active','Completed','Missed','Pending'];
+const doctors=['Dr. Sharma','Dr. Reddy','Dr. Iyer','Dr. Patel','Dr. Rao','Dr. Nair'];
+
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function rndInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function rndDate(daysAgo=365){
+  const d=new Date();d.setDate(d.getDate()-rndInt(0,daysAgo));
+  return d.toISOString().split('T')[0];
+}
+function fmtDate(s){const d=new Date(s);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+
+const allPatients=Array.from({length:1200},(_,i)=>{
+  const hasMobile=Math.random()>0.08;
+  return{
+    id:'P'+(10001+i),
+    name:rnd(firstNames)+' '+rnd(lastNames),
+    mobile:hasMobile?'9'+rndInt(100000000,999999999).toString():'—',
+    clinic:rnd(clinics),
+    treatment:rnd(treatments),
+    status:rnd(statuses),
+    lastVisit:rndDate(180),
+    registered:rndDate(365),
+  };
+});
+
+const vcStatuses=['Completed','Missed','Doctor-only','Upcoming','Rescheduled'];
+const allAppts=Array.from({length:1050},(_,i)=>{
+  const p=rnd(allPatients);
+  const vs=Math.random()<0.61?'Completed':Math.random()<0.5?'Missed':Math.random()<0.5?'Doctor-only':Math.random()<0.5?'Upcoming':'Rescheduled';
+  const dur=vs==='Completed'?rndInt(10,45)+'m':vs==='Doctor-only'?'5m':'—';
+  return{
+    id:'A'+(20001+i),
+    patient:p.name,
+    doctor:rnd(doctors),
+    clinic:p.clinic,
+    datetime:rndDate(90)+' '+rndInt(8,17)+':'+['00','15','30','45'][rndInt(0,3)],
+    vcStatus:vs,
+    duration:dur,
+    notes:vs==='Missed'?'Follow-up needed':vs==='Doctor-only'?'Patient not reachable':'—',
+  };
+});
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+const pageTitles={
+  dashboard:'Dashboard Overview',
+  patients:'Patient Management',
+  appointments:'Appointment & VC Tracker',
+  reports:'SSRS-style Reports',
+  sql:'SQL Query Library',
+  api:'API Documentation'
+};
+
+function navigate(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  document.getElementById('pageTitle').textContent=pageTitles[id]||id;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD INIT
+═══════════════════════════════════════════════════════════ */
+function initDashboard(){
+  setTimeout(()=>{
+    document.getElementById('skeletonDash').style.display='none';
+    document.getElementById('dashContent').style.display='block';
+    animateCounter('kpiTotal',0,1200,1200);
+    animateCounter('kpiActive',0,487,1000);
+    animateCounter('kpiConsult',0,642,1100);
+    animateCounter('kpiMissed',0,128,900);
+    buildCharts();
+    buildRecentPatients();
+  },1400);
+}
+
+function animateCounter(id,from,to,dur){
+  const el=document.getElementById(id);
+  const step=(to-from)/(dur/16);
+  let cur=from;
+  const t=setInterval(()=>{
+    cur=Math.min(cur+step,to);
+    el.textContent=Math.floor(cur).toLocaleString('en-IN');
+    if(cur>=to)clearInterval(t);
+  },16);
+}
+
+function buildCharts(){
+  Chart.defaults.color='#8888a8';
+  Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+
+  // Visit trend
+  new Chart(document.getElementById('visitChart'),{
+    type:'bar',
+    data:{
+      labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{
+        label:'Visits',
+        data:[980,1120,1050,1340,1280,1490,1320,1580,1420,1680,1540,1820],
+        backgroundColor:'rgba(0,214,143,0.7)',
+        borderColor:'rgba(0,214,143,1)',
+        borderWidth:0,borderRadius:4,
+      },{
+        label:'Unique Patients',
+        data:[820,940,890,1100,1050,1240,1090,1320,1180,1400,1290,1520],
+        backgroundColor:'rgba(77,166,255,0.4)',
+        borderColor:'rgba(77,166,255,1)',
+        borderWidth:0,borderRadius:4,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:11}}}},scales:{y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  // Treatment donut
+  new Chart(document.getElementById('treatChart'),{
+    type:'doughnut',
+    data:{
+      labels:['Homeopathy','Hair Care','Skin Care','Dental','Nutrition'],
+      datasets:[{data:[38,25,18,12,7],backgroundColor:['rgba(0,214,143,0.8)','rgba(77,166,255,0.8)','rgba(255,179,71,0.8)','rgba(167,139,250,0.8)','rgba(255,107,138,0.8)'],borderWidth:0,hoverOffset:8}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}}}}
+  });
+
+  // Daily trend
+  new Chart(document.getElementById('dailyChart'),{
+    type:'line',
+    data:{
+      labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets:[{
+        label:'Daily Visits',
+        data:[142,168,155,192,178,210,88],
+        borderColor:'#00d68f',backgroundColor:'rgba(0,214,143,0.1)',
+        borderWidth:2,fill:true,tension:0.4,pointRadius:3,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+}
+
+function buildRecentPatients(){
+  const recent=allPatients.slice(0,8);
+  document.getElementById('recentPatientsBody').innerHTML=recent.map(p=>`
+    <tr>
+      <td class="mono">${p.id}</td>
+      <td>${p.name}</td>
+      <td>${p.clinic}</td>
+      <td>${p.treatment}</td>
+      <td>${badgeHtml(p.status)}</td>
+      <td class="mono" style="font-size:12px">${fmtDate(p.registered)}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PATIENTS TABLE
+═══════════════════════════════════════════════════════════ */
+let filteredPatients=[...allPatients];
+let currentPage=1;
+const PAGE_SIZE=15;
+
+function filterPatients(){
+  const q=(document.getElementById('patientSearch').value||'').toLowerCase().trim();
+  const clinic=document.getElementById('clinicFilter').value;
+  const status=document.getElementById('statusFilter').value;
+  const treatment=document.getElementById('treatmentFilter').value;
+  filteredPatients=allPatients.filter(p=>{
+    const matchQ=!q||
+      p.name.toLowerCase().includes(q)||
+      p.mobile.includes(q)||
+      p.id.toLowerCase().includes(q);      // ← Patient ID search
+    const matchC=!clinic||p.clinic===clinic;
+    const matchS=!status||p.status===status;
+    const matchT=!treatment||p.treatment===treatment;  // ← Treatment filter
+    return matchQ&&matchC&&matchS&&matchT;
+  });
+  currentPage=1;
+
+  // Show active filter count in badge
+  const activeFilters=[q,clinic,status,treatment].filter(Boolean).length;
+  const badge=document.getElementById('patientBadge');
+  badge.textContent=filteredPatients.length.toLocaleString()+' records'+(activeFilters?` · ${activeFilters} filter${activeFilters>1?'s':''} active`:'');
+  badge.style.background=activeFilters?'var(--amber-bg)':'var(--green-bg)';
+  badge.style.color=activeFilters?'var(--amber)':'var(--green)';
+
+  renderPatients();
+}
+
+function clearFilters(){
+  document.getElementById('patientSearch').value='';
+  document.getElementById('clinicFilter').value='';
+  document.getElementById('statusFilter').value='';
+  document.getElementById('treatmentFilter').value='';
+  filterPatients();
+  showToast('Filters cleared');
+}
+
+function renderPatients(){
+  const start=(currentPage-1)*PAGE_SIZE;
+  const pageData=filteredPatients.slice(start,start+PAGE_SIZE);
+  document.getElementById('patientCount').textContent=`Showing ${start+1}–${Math.min(start+PAGE_SIZE,filteredPatients.length)} of ${filteredPatients.length.toLocaleString()} records`;
+  document.getElementById('patientBadge').textContent=filteredPatients.length.toLocaleString()+' records';
+
+  document.getElementById('patientBody').innerHTML=pageData.length?pageData.map(p=>`
+    <tr>
+      <td class="mono">${p.id}</td>
+      <td>${p.name}</td>
+      <td class="mono" style="font-size:12px">${p.mobile}</td>
+      <td>${p.clinic}</td>
+      <td>${p.treatment}</td>
+      <td>${badgeHtml(p.status)}</td>
+      <td class="mono" style="font-size:12px">${fmtDate(p.lastVisit)}</td>
+      <td><button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="showToast('Patient ${p.id} selected')">View</button></td>
+    </tr>`).join(''):`<tr><td colspan="8"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No patients match your search</div></div></td></tr>`;
+
+  const totalPages=Math.ceil(filteredPatients.length/PAGE_SIZE);
+  document.getElementById('pagInfo').textContent=`Page ${currentPage} of ${totalPages}`;
+  const btns=document.getElementById('pagBtns');
+  btns.innerHTML='';
+  const pages=[1,currentPage-1,currentPage,currentPage+1,totalPages].filter((v,i,a)=>v>=1&&v<=totalPages&&a.indexOf(v)===i).sort((a,b)=>a-b);
+  pages.forEach((p,i)=>{
+    if(i>0&&pages[i]-pages[i-1]>1){const dot=document.createElement('div');dot.className='pag-btn';dot.textContent='…';dot.style.pointerEvents='none';btns.appendChild(dot);}
+    const btn=document.createElement('button');
+    btn.className='pag-btn'+(p===currentPage?' active':'');
+    btn.textContent=p;
+    btn.onclick=()=>{currentPage=p;renderPatients()};
+    btns.appendChild(btn);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APPOINTMENTS TABLE
+═══════════════════════════════════════════════════════════ */
+let filteredAppts=[...allAppts];
+let apptPage=1;
+
+function filterAppts(){
+  const q=(document.getElementById('apptSearch').value||'').toLowerCase();
+  const st=document.getElementById('apptStatusFilter').value;
+  filteredAppts=allAppts.filter(a=>{
+    const matchQ=!q||a.patient.toLowerCase().includes(q)||a.doctor.toLowerCase().includes(q);
+    const matchS=!st||a.vcStatus===st;
+    return matchQ&&matchS;
+  });
+  apptPage=1;
+  renderAppts();
+}
+
+function renderAppts(){
+  const start=(apptPage-1)*PAGE_SIZE;
+  const pageData=filteredAppts.slice(start,start+PAGE_SIZE);
+  document.getElementById('apptPagInfo').textContent=`Page ${apptPage} of ${Math.ceil(filteredAppts.length/PAGE_SIZE)}`;
+  document.getElementById('apptBody').innerHTML=pageData.map(a=>`
+    <tr>
+      <td class="mono">${a.id}</td>
+      <td>${a.patient}</td>
+      <td>${a.doctor}</td>
+      <td>${a.clinic}</td>
+      <td class="mono" style="font-size:11px">${a.datetime}</td>
+      <td>${vcBadge(a.vcStatus)}</td>
+      <td class="mono" style="font-size:11px">${a.duration}</td>
+      <td style="font-size:12px;color:var(--text3)">${a.notes}</td>
+    </tr>`).join('');
+
+  const totalPages=Math.ceil(filteredAppts.length/PAGE_SIZE);
+  const btns=document.getElementById('apptPagBtns');
+  btns.innerHTML='';
+  [1,apptPage,totalPages].filter((v,i,a)=>v>=1&&v<=totalPages&&a.indexOf(v)===i).sort((a,b)=>a-b).forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className='pag-btn'+(p===apptPage?' active':'');
+    btn.textContent=p;
+    btn.onclick=()=>{apptPage=p;renderAppts()};
+    btns.appendChild(btn);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REPORTS
+═══════════════════════════════════════════════════════════ */
+const reportData={
+  clinic:{
+    title:'Clinic-wise Patient Report',
+    meta:'Generated: '+new Date().toLocaleString('en-IN')+' · Stored Proc: usp_ClinicReport',
+    headers:['Clinic','Total Patients','Completed','Missed','Conversion Rate','Avg Sessions'],
+    rows:[
+      ['Hyderabad Central','2,840','2,045','312','72.0%','3.2'],
+      ['Secunderabad','1,920','1,248','230','65.0%','2.9'],
+      ['Banjara Hills','1,650','957','248','58.0%','2.7'],
+      ['Jubilee Hills','1,210','968','121','80.0%','3.8'],
+      ['Kukatpally','980','441','176','45.0%','2.1'],
+    ]
+  },
+  daterange:{
+    title:'Date Range Report — Last 30 Days',
+    meta:'From: '+new Date(Date.now()-30*864e5).toLocaleDateString('en-IN')+' To: '+new Date().toLocaleDateString('en-IN'),
+    headers:['Date','New Patients','Appointments','VC Completed','Missed'],
+    rows:[
+      ['Mar 2025','342','520','374','78'],
+      ['Feb 2025','298','480','312','92'],
+      ['Jan 2025','318','502','341','84'],
+    ]
+  },
+  vc:{
+    title:'VC Session Summary Report',
+    meta:'Stored Procedure: usp_GetVCSummary · All Clinics',
+    headers:['Clinic','Total Sessions','Completed','Patient Missed','Doctor-only','Success Rate'],
+    rows:[
+      ['Hyderabad Central','520','374','78','40','71.9%'],
+      ['Secunderabad','380','247','80','32','65.0%'],
+      ['Banjara Hills','310','180','82','28','58.1%'],
+      ['Jubilee Hills','280','224','28','20','80.0%'],
+      ['Kukatpally','210','95','74','22','45.2%'],
+    ]
+  },
+  treatment:{
+    title:'Treatment Type Breakdown Report',
+    meta:'All Clinics · All Time · GROUP BY TreatmentType',
+    headers:['Treatment','Patients','Avg Sessions','Completion Rate','Revenue (₹L)'],
+    rows:[
+      ['Homeopathy','456','4.2','72.0%','28.4'],
+      ['Hair Care','300','3.1','65.0%','19.2'],
+      ['Skin Care','216','2.8','58.0%','14.6'],
+      ['Dental','144','5.1','80.0%','22.8'],
+      ['Nutrition','84','2.2','45.0%','7.1'],
+    ]
+  }
+};
+
+function runReport(type){
+  showToast('Generating report...');
+  setTimeout(()=>{
+    const r=reportData[type];
+    document.getElementById('reportTitle').textContent=r.title;
+    document.getElementById('reportMeta').textContent=r.meta;
+    document.getElementById('reportHead').innerHTML=r.headers.map(h=>`<th>${h}</th>`).join('');
+    document.getElementById('reportBody').innerHTML=r.rows.map(row=>`<tr>${row.map((c,i)=>`<td ${i===0?'style="font-weight:600"':''}>${c}</td>`).join('')}</tr>`).join('');
+    document.getElementById('reportOutput').style.display='block';
+    document.getElementById('reportOutput').scrollIntoView({behavior:'smooth',block:'nearest'});
+    showToast('Report generated successfully!');
+  },800);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function badgeHtml(s){
+  const map={Active:'success',Completed:'info',Missed:'error',Pending:'warn'};
+  return`<span class="badge ${map[s]||'info'}">${s}</span>`;
+}
+function vcBadge(s){
+  const map={Completed:'success',Missed:'error','Doctor-only':'warn',Upcoming:'info',Rescheduled:'purple'};
+  return`<span class="badge ${map[s]||'info'}">${s}</span>`;
+}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function exportCSV(){
+  const rows=[['PatientID','Name','Mobile','Clinic','Treatment','Status','LastVisit'],...filteredPatients.slice(0,100).map(p=>[p.id,p.name,p.mobile,p.clinic,p.treatment,p.status,p.lastVisit])];
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='patients_export.csv';a.click();
+  showToast('CSV exported (100 records)');
+}
+function copySql(btn){
+  const block=btn.parentElement;
+  const text=block.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',2000);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL SEARCH — searches across ALL patients instantly
+═══════════════════════════════════════════════════════════ */
+function globalSearchFn(){
+  const q=(document.getElementById('globalSearch').value||'').trim().toLowerCase();
+  const box=document.getElementById('globalResults');
+  if(!q||q.length<2){box.style.display='none';return;}
+
+  const results=allPatients.filter(p=>
+    p.name.toLowerCase().includes(q)||
+    p.id.toLowerCase().includes(q)||
+    p.mobile.includes(q)
+  ).slice(0,8);
+
+  if(!results.length){
+    box.style.display='block';
+    box.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3)">
+      <div style="font-size:24px;margin-bottom:8px">🔍</div>
+      <div>No patients found for "<strong style="color:var(--text)">${q}</strong>"</div>
+    </div>`;
+    return;
+  }
+
+  box.style.display='block';
+  box.innerHTML=`
+    <div style="padding:10px 14px;font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)">
+      ${results.length} result${results.length>1?'s':''} found
+    </div>
+    ${results.map(p=>`
+      <div onclick="jumpToPatient('${p.id}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-weight:600;color:var(--text)">${p.name}</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--green)">${p.id}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:11px;color:var(--text3)">
+          <span>📍 ${p.clinic}</span>
+          <span>💊 ${p.treatment}</span>
+          <span>📱 ${p.mobile}</span>
+        </div>
+      </div>`).join('')}
+    <div style="padding:10px 14px;font-size:11px;color:var(--text3);text-align:center;border-top:1px solid var(--border);cursor:pointer" onclick="jumpToAllResults()">
+      View all results in Patients table →
+    </div>`;
+}
+
+function jumpToPatient(id){
+  // Navigate to patients page and search for this ID
+  navigate('patients', document.querySelectorAll('.nav-item')[1]);
+  document.getElementById('patientSearch').value=id;
+  document.getElementById('globalSearch').value='';
+  document.getElementById('globalResults').style.display='none';
+  filterPatients();
+  showToast('Showing patient '+id);
+}
+
+function jumpToAllResults(){
+  const q=document.getElementById('globalSearch').value;
+  navigate('patients', document.querySelectorAll('.nav-item')[1]);
+  document.getElementById('patientSearch').value=q;
+  document.getElementById('globalSearch').value='';
+  document.getElementById('globalResults').style.display='none';
+  filterPatients();
+}
+
+// Close global search on outside click
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#globalSearch')&&!e.target.closest('#globalResults')){
+    document.getElementById('globalResults').style.display='none';
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+initDashboard();
+renderPatients();
+renderAppts();
+</script>
+</body>
+</html>
